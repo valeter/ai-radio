@@ -9,7 +9,7 @@ env:
   TF_VERSION: "1.5.0"  # Specify the Terraform version
   YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}  # Yandex Cloud folder ID
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}  # Yandex Cloud service account key JSON
-  TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
+  TF_CLI_CONFIG_FILE: "config.tfrc"
 
 jobs:
   terraform:
@@ -46,15 +46,15 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform -chdir=terraform/ init
+        run: terraform init
 
       - name: Terraform Validate
         id: validate
-        run: terraform -chdir=terraform/ validate -no-color
+        run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform -chdir=terraform/ plan -no-color
+        run: terraform plan -no-color
         continue-on-error: true
 
       - name: Write pr comment
