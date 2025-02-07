@@ -26,3 +26,5 @@ go.work.sum
 
 *.sublime-project
 *.sublime-workspace
+
+secrets/
