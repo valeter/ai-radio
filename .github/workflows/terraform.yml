@@ -35,11 +35,11 @@ jobs:
           export YC_STORAGE_SECRET_KEY=$(jq -r '.secret_key' ~/.config/yandex/key.json)
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init
+        run: terraform init terraform/
 
       - name: Terraform Plan
-        run: terraform -chdir=terraform/ plan -out=tfplan
+        run: terraform plan -out=tfplan terraform/
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
-        run: terraform -chdir=terraform/ apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan terraform/
