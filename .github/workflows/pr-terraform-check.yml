@@ -16,6 +16,10 @@ jobs:
     name: "Terraform"
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: "terraform/"
+
     permissions:
       pull-requests: write
 
@@ -37,7 +41,7 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform -chdir=terraform/ fmt -check
+        run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform Init
