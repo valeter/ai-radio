@@ -35,20 +35,22 @@ jobs:
           export YC_STORAGE_ACCESS_KEY=$(jq -r '.access_key' ~/.config/yandex/key.json)
           export YC_STORAGE_SECRET_KEY=$(jq -r '.secret_key' ~/.config/yandex/key.json)
 
-      - name: Terraform Init
-        run: terraform -chdir=terraform/ init
-
       - name: Terraform fmt
         id: fmt
         run: terraform -chdir=terraform/ fmt -check
         continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=terraform/ init
 
       - name: Terraform Validate
         id: validate
         run: terraform -chdir=terraform/ validate -no-color
 
       - name: Terraform Plan
-        run: terraform -chdir=terraform/ plan -out=tfplan -no-color
+        id: plan
+        run: terraform -chdir=terraform/ plan -no-color
         continue-on-error: true
 
       - name: Write pr comment
