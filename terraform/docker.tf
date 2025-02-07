@@ -1,16 +1,3 @@
-terraform {
-  required_providers {
-    yandex = {
-      source = "yandex-cloud/yandex"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
-provider "yandex" {
-  zone = "ru-central1-d"
-}
-
 resource "yandex_container_registry" "ai-radio-registry" {
   name      = "ai-radio-registry"
   folder_id = "b1g2inpl68al98r9ock7"
