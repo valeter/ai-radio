@@ -1,0 +1,45 @@
+name: Terraform Yandex Cloud Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  TF_VERSION: "1.5.0"  # Specify the Terraform version
+  YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}  # Yandex Cloud folder ID
+  YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}  # Yandex Cloud service account key JSON
+
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+          export YC_STORAGE_ACCESS_KEY=$(jq -r '.access_key' ~/.config/yandex/key.json)
+          export YC_STORAGE_SECRET_KEY=$(jq -r '.secret_key' ~/.config/yandex/key.json)
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform/ plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan
