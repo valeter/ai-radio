@@ -28,3 +28,6 @@ go.work.sum
 *.sublime-workspace
 
 secrets/
+
+.terraform/
+.terraform.lock.hcl
