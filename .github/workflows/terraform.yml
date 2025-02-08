@@ -31,8 +31,6 @@ jobs:
         run: |
           mkdir -p ~/.config/yandex
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
-          export YC_STORAGE_ACCESS_KEY=$(jq -r '.access_key' ~/.config/yandex/key.json)
-          export YC_STORAGE_SECRET_KEY=$(jq -r '.secret_key' ~/.config/yandex/key.json)
 
       - name: Terraform Init
         run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
