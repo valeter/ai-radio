@@ -10,6 +10,8 @@ env:
   YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}  # Yandex Cloud folder ID
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}  # Yandex Cloud service account key JSON
   TF_CLI_CONFIG_FILE: "config.tfrc"
+  ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
+  SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
 
 jobs:
   terraform:
@@ -46,7 +48,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
       - name: Terraform Validate
         id: validate
