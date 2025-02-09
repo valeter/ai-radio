@@ -12,6 +12,10 @@ resource "yandex_container_registry_iam_binding" "puller" {
   ]
 }
 
-resource "yandex_container_repository" "caster" {
-  name = "${yandex_container_registry.ai-radio-registry.id}/caster"
+resource "yandex_container_repository" "ai-radio-caster" {
+  name = "${yandex_container_registry.ai-radio-registry.id}/ai-radio-caster"
+}
+
+output "ai-radio-caster-repository-name" {
+  value = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
 }

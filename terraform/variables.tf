@@ -12,3 +12,7 @@ variable "domain_name" {
   type    = string
   default = "ai-cloud.ru"
 }
+
+variable "dns_verification_key" {
+  type = string
+}
