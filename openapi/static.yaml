@@ -2,12 +2,6 @@ openapi: "3.0.0"
 info:
   version: 1.0.0
   title: Movies Website
-x-yc-apigateway:
-  variables:
-    installation:
-      default: "prod"
-      enum:
-       - "prod"
 
 paths:
   /:

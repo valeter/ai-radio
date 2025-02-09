@@ -2,9 +2,8 @@ resource "yandex_dns_zone" "ai-cloud-zone" {
   name        = "ai-cloud-zone"
   description = "dns zone"
 
-  zone             = "ai-cloud.ru."
-  public           = true
-  private_networks = ["${module.yc-vpc.vpc_id}"]
+  zone   = "ai-cloud.ru."
+  public = true
 
   deletion_protection = true
 }
