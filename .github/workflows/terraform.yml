@@ -13,6 +13,7 @@ env:
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
   SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
   TF_VAR_dns_verification_key: ${{ secrets.DNS_VERIFICATION_KEY }}
+  TF_VAR_service_account_id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
 
 jobs:
   terraform:

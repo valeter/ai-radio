@@ -8,7 +8,7 @@
 
       <protocol>HTTP</protocol>
       <hostname>127.0.0.1</hostname>
-      <port>8000</port>
+      <port>{{PORT}}</port>
 
       <user>source</user>
       <password>hackme</password>
@@ -21,14 +21,14 @@
 
   <streams>
     <stream>
-      <mountpoint>/stream</mountpoint>
+      <mountpoint>/</mountpoint>
       <intake>music</intake>
       <server>ai-radio</server>
       <public>No</public>
       <format>MP3</format>
 
       <stream_name>ai-radio-example</stream_name>
-      <stream_url>http://localhost:8000/</stream_url>
+      <stream_url>https://ai-cloud.ru/stream</stream_url>
       <stream_genre>AI</stream_genre>
       <stream_description>ai radio example mp3s</stream_description>
       <stream_quality>1.5</stream_quality>

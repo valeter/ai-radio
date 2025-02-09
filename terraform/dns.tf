@@ -39,3 +39,11 @@ resource "yandex_dns_recordset" "ai-radio-txt-1" {
   ttl     = 600
   data    = ["${var.dns_verification_key}"]
 }
+
+resource "yandex_dns_recordset" "ai-radio-aname-2" {
+  zone_id = yandex_dns_zone.ai-radio-zone.id
+  name    = "ai-radio.ru"
+  type    = "ANAME"
+  ttl     = 600
+  data    = ["${yandex_api_gateway.ai-radio-static-gateway.domain}"]
+}

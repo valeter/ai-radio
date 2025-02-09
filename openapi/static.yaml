@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: Movies Website
+  title: AI Radio Website
 
 paths:
   /:
@@ -37,3 +37,18 @@ paths:
         type: object_storage
         bucket: 'ai-radio-images'
         object: '{file}'
+  /stream:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: serverless_containers
+        container_id: "${container_id}"
+        service_account_id: "${service_account_id}"
+      parameters:
+      - explode: false
+        in: path
+        name: proxy
+        required: false
+        schema:
+          default: '-'
+          type: string
+        style: simple

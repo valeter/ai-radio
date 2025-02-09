@@ -13,6 +13,15 @@ variable "domain_name" {
   default = "ai-radio.ru"
 }
 
+variable "cert_id" {
+  type    = string
+  default = "fpq5ma6m9dasb2srh8hl"
+}
+
 variable "dns_verification_key" {
+  type = string
+}
+
+variable "service_account_id" {
   type = string
 }
