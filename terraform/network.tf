@@ -19,8 +19,8 @@ module "yc-vpc" {
   ]
 }
 
-resource "yandex_vpc_address" "ai-cloud-gateway-ip" {
-  name = "ai-cloud-gateway-ip"
+resource "yandex_vpc_address" "ai-radio-gateway-ip" {
+  name = "ai-radio-gateway-ip"
 
   external_ipv4_address {
     zone_id                  = "ru-central1-d"

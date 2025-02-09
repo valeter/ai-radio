@@ -2,6 +2,8 @@ openapi: "3.0.0"
 info:
   version: 1.0.0
   title: Movies Website
+x-yc-apigateway:
+  service_account_id: ${ai-radio-base-sa-id}
 
 paths:
   /:

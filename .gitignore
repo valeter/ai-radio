@@ -31,3 +31,5 @@ secrets/
 
 .terraform/
 .terraform.lock.hcl
+
+example-music/
