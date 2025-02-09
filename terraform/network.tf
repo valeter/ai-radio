@@ -27,7 +27,3 @@ resource "yandex_vpc_address" "ai-cloud-gateway-ip" {
     ddos_protection_provider = "qrator"
   }
 }
-
-output "ai-radio-vpc-id" {
-  value = module.yc-vpc.vpc_id
-}

@@ -4,7 +4,7 @@ resource "yandex_dns_zone" "ai-cloud-zone" {
 
   zone             = "ai-cloud.ru."
   public           = true
-  private_networks = ["${ai-radio-vpc-id}"]
+  private_networks = ["${module.yc-vpc.vpc_id}"]
 
   deletion_protection = true
 }
