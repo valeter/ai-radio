@@ -1,0 +1,41 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Movies Website
+x-yc-apigateway:
+  service_account_id: ${ai-radio-base-sa}
+
+paths:
+  /:
+    get:
+      operationId: index
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: ${ai-radio-website-bucket-name}
+        object: 'index.html'
+  /{file+}:
+    get:
+      operationId: website
+      parameters:
+        - name: file
+          in: path
+          required: false
+          schema:
+            type: string
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: ${ai-radio-website-bucket-name}
+        object: '{file}'
+  /images/{file+}:
+    get:
+      operationId: posters
+      parameters:
+        - name: file
+          in: path
+          required: false
+          schema:
+            type: string
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: ${ai-radio-images-bucket-name}
+        object: '{file}'

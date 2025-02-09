@@ -12,6 +12,7 @@ env:
   TF_CLI_CONFIG_FILE: "config.tfrc"
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
   SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
+  TF_VAR_dns_verification_key: ${{ secrets.DNS_VERIFICATION_KEY }}
 
 jobs:
   terraform:
