@@ -38,5 +38,5 @@ resource "yandex_dns_recordset" "ai-cloud-txt-1" {
   name    = "@"
   type    = "TXT"
   ttl     = 600
-  data    = ["${dns_verification_key}"]
+  data    = ["${var.dns_verification_key}"]
 }
