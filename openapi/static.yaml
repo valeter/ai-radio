@@ -2,8 +2,6 @@ openapi: "3.0.0"
 info:
   version: 1.0.0
   title: Movies Website
-x-yc-apigateway:
-  service_account_id: ${ai-radio-base-sa-id}
 
 paths:
   /:
@@ -11,7 +9,7 @@ paths:
       operationId: index
       x-yc-apigateway-integration:
         type: object_storage
-        bucket: ${ai-radio-website-bucket-name}
+        bucket: 'ai-radio-website'
         object: 'index.html'
   /{file+}:
     get:
@@ -24,7 +22,7 @@ paths:
             type: string
       x-yc-apigateway-integration:
         type: object_storage
-        bucket: ${ai-radio-website-bucket-name}
+        bucket: 'ai-radio-website'
         object: '{file}'
   /images/{file+}:
     get:
@@ -37,5 +35,5 @@ paths:
             type: string
       x-yc-apigateway-integration:
         type: object_storage
-        bucket: ${ai-radio-images-bucket-name}
+        bucket: 'ai-radio-images'
         object: '{file}'
