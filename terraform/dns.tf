@@ -16,6 +16,14 @@ resource "yandex_dns_recordset" "ai-radio-aname-1" {
   data    = [yandex_api_gateway.ai-radio-static-gateway.domain]
 }
 
+resource "yandex_dns_recordset" "ai-radio-aname-2" {
+  zone_id = yandex_dns_zone.ai-radio-zone.id
+  name    = "www.ai-radio.ru."
+  type    = "ANAME"
+  ttl     = 600
+  data    = [yandex_api_gateway.ai-radio-static-gateway.domain]
+}
+
 resource "yandex_dns_recordset" "ai-radio-txt-1" {
   zone_id = yandex_dns_zone.ai-radio-zone.id
   name    = "@"
