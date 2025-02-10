@@ -77,6 +77,13 @@ resource "yandex_vpc_default_security_group" "default_sg" {
     from_port      = 0
     to_port        = 65535
   }
+  ingress {
+    protocol       = "TCP"
+    description    = "from gw"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    from_port      = 0
+    to_port        = 80
+  }
 
   ingress {
     protocol          = "TCP"

@@ -12,4 +12,5 @@ resource "yandex_api_gateway" "ai-radio-static-gateway" {
     fqdn           = "ai-radio.ru"
     certificate_id = var.cert_id
   }
+  execution_timeout = "30"
 }
