@@ -8,11 +8,10 @@ RUN useradd -ms /bin/bash icecast
 RUN groupadd -f icecast
 RUN usermod -a -G icecast icecast
 
-# for local use only
-#ENV PORT=8080
-#COPY example-music/ /music/
-#RUN chown -R icecast:icecast /music
-#RUN chmod 600 /music/*
+ENV PORT=80
+COPY example-music/ /music/
+RUN chown -R icecast:icecast /music
+RUN chmod 600 /music/*
 
 # Install necessary packages
 RUN apt-get update && apt-get install -y \

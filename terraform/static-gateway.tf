@@ -2,11 +2,11 @@ resource "yandex_api_gateway" "ai-radio-static-gateway" {
   folder_id = var.folder_id
   name      = "ai-radio-static-gateway"
   spec = templatefile("../openapi/static.yaml", {
-    container_id       = yandex_serverless_container.ai-radio-caster-container.id
-    service_account_id = var.service_account_id
+    vm_ip = yandex_compute_instance.ai-radio-caster-vm.network_interface.0.nat_ip_address
   })
+  #spec = file("../openapi/static.yaml")
   connectivity {
-    network_id = module.yc-vpc.vpc_id
+    network_id = yandex_vpc_network.ai-radio-network.id
   }
   custom_domains {
     fqdn           = "ai-radio.ru"

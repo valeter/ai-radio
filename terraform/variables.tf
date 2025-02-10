@@ -15,7 +15,7 @@ variable "domain_name" {
 
 variable "cert_id" {
   type    = string
-  default = "fpq5ma6m9dasb2srh8hl"
+  default = "fpq4064mdcgk44edhopp"
 }
 
 variable "dns_verification_key" {
@@ -24,4 +24,13 @@ variable "dns_verification_key" {
 
 variable "service_account_id" {
   type = string
+}
+
+variable "ssh_key_pub" {
+  type = string
+}
+
+variable "ai-radio-caster-version" {
+  type    = string
+  default = "ai-radio-caster:v1"
 }
