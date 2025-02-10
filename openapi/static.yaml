@@ -11,6 +11,13 @@ paths:
         type: object_storage
         bucket: 'ai-radio-website'
         object: 'index.html'
+  /ping:
+    get:
+      x-yc-apigateway-integration:
+        type: dummy
+        http_code: 200
+        content:
+          "text/plain": "pong"
   /{file+}:
     get:
       operationId: website
@@ -40,15 +47,13 @@ paths:
   /stream:
     x-yc-apigateway-any-method:
       x-yc-apigateway-integration:
-        type: serverless_containers
-        container_id: "${container_id}"
-        service_account_id: "${service_account_id}"
-      parameters:
-      - explode: false
-        in: path
-        name: proxy
-        required: false
-        schema:
-          default: '-'
-          type: string
-        style: simple
+        type: http
+        url: http://${vm_ip}
+        method: ANY
+        query:
+          '*': '*'
+          single_param: three
+        headers:
+          Host: ai-radio.ru
+          '*': '*'
+          Single-header: three

@@ -14,6 +14,7 @@ env:
   SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
   TF_VAR_dns_verification_key: ${{ secrets.DNS_VERIFICATION_KEY }}
   TF_VAR_service_account_id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
+  TF_VAR_ssh_key_pub: ${{ secrets.TF_VAR_ssh_key_pub }}
 
 jobs:
   terraform:
