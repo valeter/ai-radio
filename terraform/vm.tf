@@ -22,8 +22,9 @@ resource "yandex_compute_instance" "ai-radio-caster-vm" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.ai-radio-private-subnet-1.id
-    nat       = true
+    subnet_id      = yandex_vpc_subnet.ai-radio-private-subnet-1.id
+    nat            = true
+    nat_ip_address = yandex_vpc_address.ai-radio-stream-ip.external_ipv4_address[0].address
   }
 
   metadata = {

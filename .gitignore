@@ -34,3 +34,7 @@ secrets/
 terraform.tfstate
 
 example-music/
+
+certs/
+ai-radio-chain.crt
+ai-radio-chain.key

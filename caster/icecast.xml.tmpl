@@ -1,6 +1,6 @@
 <icecast>
     <location>Earth</location>
-    <hostname>localhost</hostname>
+    <hostname>ai-radio.ru</hostname>
     <admin>ivananisimov2010@gmail.com</admin>
     <limits>
         <clients>100</clients>
@@ -11,7 +11,7 @@
         <admin-password>hackme</admin-password>
     </authentication>
     <listen-socket>
-        <port>{{PORT}}</port>
+        <port>{{ICECAST_PORT}}</port>
     </listen-socket>
     <paths>
         <basedir>/usr/share/icecast2</basedir>
@@ -27,5 +27,7 @@
     </logging>
     <http-headers>
         <header name="Access-Control-Allow-Origin" value="*" />
+        <header name="Access-Control-Allow-Methods" value="GET, OPTIONS" />
+        <header name="Access-Control-Allow-Headers" value="Icy-Metadata" />
     </http-headers>
 </icecast>

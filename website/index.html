@@ -5,46 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ai-radio</title>
     <link rel="icon" type="image/jpeg" href="images/logo.jpeg">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
-        #playButton {
-            padding: 15px 30px;
-            font-size: 20px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #playButton:active {
-            background-color: #0056b3;
-        }
-    </style>
+
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
 </head>
 <body>
-    <button id="playButton">Play</button>
+    <div class="padding"></div>
+        <div id="station0" class="station">
+            <div class="title">
+                <div id="title0" class="subtitle"></div>
+                <div id="live0" class="live">В ЭФИРЕ</div>
+                <div id="playing0" class="playing">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
+        </div>
+    </div>
+    <div class="padding"></div>
 
     <script>
-        const audio = new Audio('https://ai-radio.ru/stream');
-        const playButton = document.getElementById('playButton');
+    var elms = ['station0', 'title0', 'live0', 'playing0'];
+    elms.forEach(function(elm) {
+      window[elm] = document.getElementById(elm);
+    });
 
-        playButton.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play();
-                playButton.textContent = 'Playing...';
-            } else {
-                audio.pause();
-                playButton.textContent = 'Play';
+    var Radio = function(stations) {
+      var self = this;
+
+      self.stations = stations;
+      self.index = 0;
+      
+      for (var i=0; i<self.stations.length; i++) {
+        window['title' + i].innerHTML = '▶️ <b>' + self.stations[i].title + '</b> ';
+        window['station' + i].addEventListener('click', function(index) {
+          var isNotPlaying = (self.stations[index].howl && !self.stations[index].howl.playing());
+          
+          radio.stop();
+
+          if (isNotPlaying || !self.stations[index].howl) {
+            radio.play(index);
+          }
+        }.bind(self, i));
+      }
+    };
+
+    Radio.prototype = {
+      play: function(index) {
+        var self = this;
+        var sound;
+
+        index = typeof index === 'number' ? index : self.index;
+        var data = self.stations[index];
+
+        if (data.howl) {
+          sound = data.howl;
+        } else {
+          sound = data.howl = new Howl({
+            src: data.src,
+            html5: true,
+            format: ['mp3'],
+            onloaderror: function(id, error) {
+                console.error('Ошибка загрузки:', error);
+                sound.unload();
+                sound.load();
+                sound.play();
+            },
+            onplayerror: function() {
+                console.error('Ошибка воспроизведения:', error);
+                let attempts = 0;
+                const maxAttempts = 3;
+                const retryDelay = 2000; // 2 секунды
+                function retryPlay() {
+                    attempts++;
+                    if (attempts <= maxAttempts) {
+                        console.log(`Попытка воспроизведения ${attempts}/${maxAttempts}`);
+                        setTimeout(() => {
+                            sound.play();
+                        }, retryDelay);
+                    } else {
+                        console.error('Не удалось воспроизвести после нескольких попыток.');
+                    }
+                }
+
+                player.once('unlock', function() {
+                    retryPlay();
+                });
+            },
+            onload: function() {
+                console.log('Аудио успешно загружено:', data.src);
+            },
+            onplay: function() {
+                console.log('Начало воспроизведения:', data.src);
+            },
+            onend: function() {
+                console.log('Воспроизведение завершено:', data.src);
             }
-        });
+          });
+        }
+        sound.play();
+        self.toggleStationDisplay(index, true);
+        self.index = index;
+      },
+
+      stop: function() {
+        var self = this;
+        var sound = self.stations[self.index].howl;
+        self.toggleStationDisplay(self.index, false);
+        if (sound) {
+          sound.unload();
+        }
+      },
+
+      toggleStationDisplay: function(index, state) {
+        var self = this;
+        window['station' + index].style.backgroundColor = state ? 'rgba(43, 130, 211, 0.33)' : '';
+        window['live' + index].style.opacity = state ? 1 : 0;
+        window['playing' + index].style.display = state ? 'block' : 'none';
+      }
+    };
+
+    var radio = new Radio([
+      {
+        title: "AI radio",
+        src: 'https://stream.ai-radio.ru',
+        howl: null
+      }
+    ]);
     </script>
 </body>
 </html>
