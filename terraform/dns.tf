@@ -26,8 +26,17 @@ resource "yandex_dns_recordset" "ai-radio-aname-2" {
 
 resource "yandex_dns_recordset" "ai-radio-txt-1" {
   zone_id = yandex_dns_zone.ai-radio-zone.id
-  name    = "@"
+  name    = "_acme-challenge.ai-radio.ru."
   type    = "TXT"
-  ttl     = 600
+  ttl     = 10
   data    = ["${var.dns_verification_key}"]
+}
+
+
+resource "yandex_dns_recordset" "ai-radio-a-1" {
+  zone_id = yandex_dns_zone.ai-radio-zone.id
+  name    = "stream.ai-radio.ru."
+  type    = "A"
+  ttl     = 600
+  data    = [yandex_vpc_address.ai-radio-stream-ip.external_ipv4_address[0].address]
 }

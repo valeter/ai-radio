@@ -79,10 +79,10 @@ resource "yandex_vpc_default_security_group" "default_sg" {
   }
   ingress {
     protocol       = "TCP"
-    description    = "from gw"
+    description    = "https from internet"
     v4_cidr_blocks = ["0.0.0.0/0"]
     from_port      = 0
-    to_port        = 80
+    to_port        = 443
   }
 
   ingress {
@@ -95,5 +95,14 @@ resource "yandex_vpc_default_security_group" "default_sg" {
     protocol       = "ANY"
     description    = "To internet"
     v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_address" "ai-radio-stream-ip" {
+  name = "ai-radio-stream-ip"
+
+  external_ipv4_address {
+    zone_id                  = "ru-central1-d"
+    ddos_protection_provider = "qrator"
   }
 }

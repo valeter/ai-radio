@@ -44,16 +44,3 @@ paths:
         type: object_storage
         bucket: 'ai-radio-images'
         object: '{file}'
-  /stream:
-    get:
-      x-yc-apigateway-integration:
-        headers:
-          '*': '*'
-        method: get
-        query:
-          '*': '*'
-        timeouts:
-          read: 30.0
-          connect: 5.0
-        type: http
-        url: http://${vm_ip}

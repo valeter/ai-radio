@@ -1,0 +1,28 @@
+user nginxuser;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {}
+
+http {
+    server {
+        listen {{NGINX_PORT}} ssl;
+        server_name ai-radio.ru;
+
+        ssl_certificate /etc/nginx/ai-radio-chain.crt;
+        ssl_certificate_key /etc/nginx/ai-radio-chain.key;
+
+        location = / {
+            proxy_pass http://localhost:{{ICECAST_PORT}};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location ~^/.* {
+            return 403;
+        }
+    }
+}
