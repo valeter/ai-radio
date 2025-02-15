@@ -38,3 +38,5 @@ example-music/
 certs/
 ai-radio-chain.crt
 ai-radio-chain.key
+
+speech-generator/cli-client/cli-client
