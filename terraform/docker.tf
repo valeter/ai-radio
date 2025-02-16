@@ -17,5 +17,6 @@ resource "yandex_container_repository" "ai-radio-caster" {
 }
 
 output "ai-radio-caster-repository-name" {
-  value = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
+  value     = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
+  sensitive = true
 }
