@@ -44,6 +44,7 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
         run: terraform -chdir=terraform/ apply -auto-approve tfplan
+
   upload-website:
     needs: terraform
 
@@ -79,11 +80,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Yandex Cloud CLI
+      - name: Configure Yandex Cloud credentials
         run: |
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i ~/.local/bin
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          yc version
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Get latest yc version number
+        shell: bash
+        id: version
+        run:
+          echo "::set-output name=value::`curl -s --fail https://storage.yandexcloud.net/yandexcloud-yc/release/stable`"
+
+      - name: Cache yc binary
+        uses: actions/cache@v2
+        id: cache-yc-cli
+        with:
+          path: /usr/local/bin/yc
+          key: yc-cli-${{ steps.version.outputs.value }}
+
+      - name: Get yc binary if cache miss
+        if: steps.cache-yc-cli.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          echo Downloading yc cli version ${{ steps.version.outputs.value }}
+          sudo curl --fail "https://storage.yandexcloud.net/yandexcloud-yc/release/${{ steps.version.outputs.value }}/linux/amd64/yc" -o /usr/local/bin/yc
+
+      - name: Set permissions for yc cli binary
+        shell: bash
+        run:
+          sudo chmod a+rx /usr/local/bin/yc
           
       - name: Decode certificates
         run: |
