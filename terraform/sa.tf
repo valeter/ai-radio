@@ -81,3 +81,13 @@ output "ai-radio-tts-sa-secret-key" {
   value     = yandex_iam_service_account_api_key.ai-radio-tts-sa-api-key.secret_key
   sensitive = true
 }
+
+output "ai-radio-static-sa-access-key" {
+  value     = yandex_iam_service_account_static_access_key.ai-radio-static-key.access_key
+  sensitive = true
+}
+
+output "ai-radio-static-sa-secret-key" {
+  value     = yandex_iam_service_account_static_access_key.ai-radio-static-key.secret_key
+  sensitive = true
+}
