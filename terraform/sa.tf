@@ -59,7 +59,7 @@ resource "yandex_resourcemanager_folder_iam_member" "ai-radio-tts-sa-tts-user" {
 
 resource "yandex_iam_service_account_api_key" "ai-radio-tts-sa-api-key" {
   service_account_id = yandex_iam_service_account.ai-radio-tts-sa.id
-  scope              = "yc.ai.speechkitTts.execute"
+  scopes             = ["yc.ai.speechkitTts.execute"]
 }
 
 output "ai-radio-base-sa-id" {
