@@ -27,6 +27,8 @@ go.work.sum
 *.sublime-project
 *.sublime-workspace
 
+.idea/
+
 secrets/
 
 .terraform/
@@ -40,3 +42,6 @@ ai-radio-chain.crt
 ai-radio-chain.key
 
 speech-generator/cli-client/cli-client
+speech-generator/server/server
+speech-generator/server/proto
+speech-generator/server/generated
