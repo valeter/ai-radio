@@ -65,8 +65,7 @@ jobs:
           aws configure set default.endpoint-url https://storage.yandexcloud.net
 
       - name: Sleep for 60 seconds
-        uses: jakejarvis/wait-action@master
-        run: sleep 60s
+        run: sleep 30s
         shell: bash
 
       - name: Sync website files to Yandex Cloud Storage
