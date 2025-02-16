@@ -64,6 +64,11 @@ jobs:
           aws configure set default.region ru-central1
           aws configure set default.endpoint-url https://storage.yandexcloud.net
 
+      - name: Sleep for 60 seconds
+        uses: jakejarvis/wait-action@master
+        run: sleep 60s
+        shell: bash
+
       - name: Sync website files to Yandex Cloud Storage
         run: |
           aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
@@ -77,10 +82,10 @@ jobs:
     steps:
       - name: Install Yandex Cloud CLI
         run: |
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          source "/home/runner/.bashrc"
-          /usr/local/bin/yc version
-
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i ~/.local/bin
+          echo "::add-path::~/.local/bin"  # Добавляем путь в PATH
+          yc version
+          
       - name: Decode certificates
         run: |
           echo "${{ secrets.CERTIFICATE_BASE64 }}" | base64 --decode > fullchain.pem
@@ -88,7 +93,7 @@ jobs:
 
       - name: Update certificate in API Gateway
         run: |
-          /usr/local/bin/yc api-gateway certificate update ai-radio \
+          yc api-gateway certificate update ai-radio \
             --certificate-file fullchain.pem \
             --private-key-file privkey.pem
 
