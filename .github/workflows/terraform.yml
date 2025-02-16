@@ -78,8 +78,8 @@ jobs:
       - name: Install Yandex Cloud CLI
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          source ~/.bashrc
-          yc version
+          source "/home/runner/.bashrc"
+          /usr/local/bin/yc version
 
       - name: Decode certificates
         run: |
@@ -88,7 +88,7 @@ jobs:
 
       - name: Update certificate in API Gateway
         run: |
-          yc api-gateway certificate update ai-radio \
+          /usr/local/bin/yc api-gateway certificate update ai-radio \
             --certificate-file fullchain.pem \
             --private-key-file privkey.pem
 
