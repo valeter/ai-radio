@@ -31,16 +31,3 @@ paths:
         type: object_storage
         bucket: 'ai-radio-website'
         object: '{file}'
-  /images/{file+}:
-    get:
-      operationId: posters
-      parameters:
-        - name: file
-          in: path
-          required: false
-          schema:
-            type: string
-      x-yc-apigateway-integration:
-        type: object_storage
-        bucket: 'ai-radio-images'
-        object: '{file}'

@@ -20,3 +20,17 @@ output "ai-radio-caster-repository-name" {
   value     = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
   sensitive = true
 }
+
+resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy" {
+  name          = "ai-radio-caster-policy"
+  status        = "active"
+  repository_id = yandex_container_repository.ai-radio-caster.id
+
+  rule {
+    description  = "remove old versions"
+    untagged     = true
+    tag_regexp   = ".*"
+    retained_top = 1
+  }
+}
+

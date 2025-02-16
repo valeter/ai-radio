@@ -44,6 +44,13 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
         run: terraform -chdir=terraform/ apply -auto-approve tfplan
+  upload-website:
+    name: "Upload website"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Configure AWS CLI for Yandex Cloud
         env:
@@ -58,3 +65,27 @@ jobs:
       - name: Sync website files to Yandex Cloud Storage
         run: |
           aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
+
+  upload-certs:
+    name: "Upload website"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          yc version
+
+      - name: Decode certificates
+        run: |
+          echo "${{ secrets.CERTIFICATE_BASE64 }}" | base64 --decode > fullchain.pem
+          echo "${{ secrets.PRIVATE_KEY_BASE64 }}" | base64 --decode > privkey.pem
+
+      - name: Update certificate in API Gateway
+        run: |
+          yc api-gateway certificate update ai-radio \
+            --certificate-file fullchain.pem \
+            --private-key-file privkey.pem
+
+      - name: Cleanup
+        run: rm -f fullchain.pem privkey.pem
