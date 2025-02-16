@@ -45,6 +45,8 @@ jobs:
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
         run: terraform -chdir=terraform/ apply -auto-approve tfplan
   upload-website:
+    needs: terraform
+
     name: "Upload website"
     runs-on: ubuntu-latest
 
@@ -67,13 +69,16 @@ jobs:
           aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
 
   upload-certs:
-    name: "Upload website"
+    needs: terraform
+
+    name: "Upload certs"
     runs-on: ubuntu-latest
 
     steps:
       - name: Install Yandex Cloud CLI
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          source ~/.bashrc
           yc version
 
       - name: Decode certificates
