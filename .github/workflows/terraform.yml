@@ -117,7 +117,7 @@ jobs:
 
       - name: Update certificate in API Gateway
         run: |
-          yc api-gateway certificate update ai-radio \
+          yc certificate-manager certificate update ai-radio \
             --certificate-file fullchain.pem \
             --private-key-file privkey.pem
 
