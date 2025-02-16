@@ -45,10 +45,12 @@ jobs:
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
         run: terraform -chdir=terraform/ apply -auto-approve tfplan
 
-      - name: Install AWS CLI (for Yandex Cloud compatibility)
+      - name: Install AWS CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          aws --version
 
       - name: Configure AWS CLI for Yandex Cloud
         env:
