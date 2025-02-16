@@ -57,4 +57,4 @@ jobs:
 
       - name: Sync website files to Yandex Cloud Storage
         run: |
-          aws s3 sync ./website s3://ai-radio-website --delete
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
