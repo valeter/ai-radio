@@ -1,6 +1,6 @@
 // ai_radio_dev
 resource "yandex_organizationmanager_group" "ai-radio-dev" {
-  name            = "ai_radio_dev"
+  name            = "ai-radio-dev"
   description     = "ai-radio.ru developers"
   organization_id = var.organization_id
 }
@@ -30,7 +30,7 @@ resource "yandex_organizationmanager_organization_iam_member" "ai_radio_dev_moni
 
 // ai_radio_ops
 resource "yandex_organizationmanager_group" "ai-radio-ops" {
-  name            = "ai_radio_ops"
+  name            = "ai-radio-ops"
   description     = "ai-radio.ru operations"
   organization_id = var.organization_id
 }

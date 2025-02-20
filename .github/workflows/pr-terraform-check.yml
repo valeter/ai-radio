@@ -14,6 +14,7 @@ env:
   TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
   TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
   TF_VAR_operations: ${{ secrets.TF_VAR_operations }}
+  TF_VAR_service_account_id: ${{ secrets.TF_VAR_service_account_id }}
 
 jobs:
   terraform:

@@ -1,3 +1,7 @@
+variable "service_account_id" {
+  type = string
+}
+
 variable "organization_id" {
   type = string
 }

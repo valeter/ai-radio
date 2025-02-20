@@ -1,6 +1,6 @@
 resource "yandex_cm_certificate" "ai-radio-cert" {
   folder_id = local.network_folder_id
-  name      = "ai_radio_cert"
+  name      = "ai-radio-cert"
   domains   = ["ai-radio.ru"]
   managed {
     challenge_type = "DNS_TXT"
