@@ -1,0 +1,91 @@
+name: Deploy terraform and other
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  TF_VERSION: "1.10.5"
+  YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
+  TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
+  ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
+  SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
+  TF_VAR_tfstate_bucket: ${{ secrets.TF_VAR_tfstate_bucket }}
+  TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
+  TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
+  TF_VAR_operations: ${{ secrets.TF_VAR_operations }}
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform/ plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan
+
+  upload-website:
+    needs: terraform
+
+    name: "Upload website"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Sleep for 60 seconds
+        run: sleep 30s
+        shell: bash
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output aws_access_key)" >> $YC_WEBSITE_ACCESS_KEY
+          echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output aws_secret_key)" >> $YC_WEBSITE_ACCESS_KEY
+
+      - name: Configure AWS CLI for Yandex Cloud
+        env:
+          YC_WEBSITE_ACCESS_KEY: ${{ env.YC_WEBSITE_ACCESS_KEY }}
+          YC_WEBSITE_SECRET_KEY: ${{ env.YC_WEBSITE_SECRET_KEY }}
+        run: |
+          aws configure set aws_access_key_id $YC_WEBSITE_ACCESS_KEY
+          aws configure set aws_secret_access_key $YC_WEBSITE_SECRET_KEY
+          aws configure set default.region ru-central1
+          aws configure set default.endpoint-url https://storage.yandexcloud.net
+
+      - name: Sync website files to Yandex Cloud Storage
+        run: |
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai_radio_website --delete

@@ -1,4 +1,4 @@
-name: Terraform Yandex Cloud Integration check
+name: Terraform validation
 
 on:  
   pull_request:
@@ -6,15 +6,15 @@ on:
       - main
 
 env:
-  TF_VERSION: "1.10.5"  # Specify the Terraform version
-  YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}  # Yandex Cloud folder ID
-  YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}  # Yandex Cloud service account key JSON
+  TF_VERSION: "1.10.5"
+  YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   TF_CLI_CONFIG_FILE: "config.tfrc"
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
   SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
-  TF_VAR_dns_verification_key: ${{ secrets.DNS_VERIFICATION_KEY }}
-  TF_VAR_service_account_id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
-  TF_VAR_ssh_key_pub: ${{ secrets.TF_VAR_ssh_key_pub }}
+  TF_VAR_tfstate_bucket: ${{ secrets.TF_VAR_tfstate_bucket }}
+  TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
+  TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
+  TF_VAR_operations: ${{ secrets.TF_VAR_operations }}
 
 jobs:
   terraform:

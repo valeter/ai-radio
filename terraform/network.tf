@@ -1,75 +1,70 @@
-
-### Network
-resource "yandex_vpc_network" "ai-radio-network" {
-  name      = "ai-radio-network"
-  folder_id = var.folder_id
+resource "yandex_vpc_network" "network" {
+  name      = "network"
+  folder_id = local.network_folder_id
 }
 
-resource "yandex_vpc_subnet" "ai-radio-private-subnet-1" {
-  name           = "ai-radio-private-subnet-1"
+resource "yandex_vpc_subnet" "private_subnet_d" {
+  name           = "private_subnet_d"
   v4_cidr_blocks = ["192.168.5.0/24"]
   zone           = "ru-central1-d"
-  network_id     = yandex_vpc_network.ai-radio-network.id
-  folder_id      = var.folder_id
-  route_table_id = yandex_vpc_route_table.ai-radio-route-table.id
+  network_id     = yandex_vpc_network.network.id
+  folder_id      = local.network_folder_id
+  route_table_id = yandex_vpc_route_table.route_table.id
 }
 
-resource "yandex_vpc_subnet" "ai-radio-private-subnet-2" {
-  name           = "ai-radio-private-subnet-2"
+resource "yandex_vpc_subnet" "private_subnet_a" {
+  name           = "private_subnet_a"
   v4_cidr_blocks = ["192.168.15.0/24"]
   zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.ai-radio-network.id
-  folder_id      = var.folder_id
-  route_table_id = yandex_vpc_route_table.ai-radio-route-table.id
+  network_id     = yandex_vpc_network.network.id
+  folder_id      = local.network_folder_id
+  route_table_id = yandex_vpc_route_table.route_table.id
 }
 
-## Routes
-resource "yandex_vpc_gateway" "ai-radio-egress_gateway" {
-  name      = "ai-radio-egress-gateway"
-  folder_id = var.folder_id
+resource "yandex_vpc_gateway" "egress_gateway" {
+  name      = "egress_gateway"
+  folder_id = local.network_folder_id
   shared_egress_gateway {}
 }
 
-resource "yandex_vpc_route_table" "ai-radio-route-table" {
-  name       = "ai-radio-route-table"
-  network_id = yandex_vpc_network.ai-radio-network.id
-  folder_id  = var.folder_id
+resource "yandex_vpc_route_table" "route_table" {
+  name       = "route_table"
+  network_id = yandex_vpc_network.network.id
+  folder_id  = local.network_folder_id
 
   dynamic "static_route" {
-    for_each = yandex_vpc_gateway.ai-radio-egress_gateway
+    for_each = yandex_vpc_gateway.egress_gateway
     content {
       destination_prefix = "0.0.0.0/0"
-      gateway_id         = yandex_vpc_gateway.ai-radio-egress_gateway.id
+      gateway_id         = yandex_vpc_gateway.egress_gateway.id
     }
   }
-
 }
 
-## Default Security Group
 resource "yandex_vpc_default_security_group" "default_sg" {
-  network_id = yandex_vpc_network.ai-radio-network.id
-  folder_id  = var.folder_id
+  network_id = yandex_vpc_network.network.id
+  folder_id  = local.network_folder_id
 
   ingress {
     protocol          = "ANY"
     description       = "Communication inside this SG"
     predefined_target = "self_security_group"
-
   }
+
   ingress {
     protocol       = "ANY"
     description    = "ssh"
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 22
-
   }
+
   ingress {
     protocol       = "ANY"
     description    = "RDP"
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 3389
-
   }
+
   ingress {
     protocol       = "ICMP"
     description    = "ICMP"
@@ -77,6 +72,7 @@ resource "yandex_vpc_default_security_group" "default_sg" {
     from_port      = 0
     to_port        = 65535
   }
+
   ingress {
     protocol       = "TCP"
     description    = "https from internet"
@@ -96,13 +92,25 @@ resource "yandex_vpc_default_security_group" "default_sg" {
     description    = "To internet"
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    protocol          = "TCP"
+    description       = "healthchecks"
+    predefined_target = "loadbalancer_healthchecks"
+    port              = 30080
+  }
 }
 
-resource "yandex_vpc_address" "ai-radio-stream-ip" {
-  name = "ai-radio-stream-ip"
-
+resource "yandex_vpc_address" "ai_radio_stream_ip" {
+  folder_id = local.network_folder_id
+  name      = "ai_radio_stream_ip_d"
   external_ipv4_address {
     zone_id                  = "ru-central1-d"
     ddos_protection_provider = "qrator"
   }
+}
+
+output "ai_radio_stream_ip" {
+  description = "stream.ai-radio.ru ip"
+  value       = yandex_vpc_address.ai_radio_stream_ip.external_ipv4_address[0].address
 }
