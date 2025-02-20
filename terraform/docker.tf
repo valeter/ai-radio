@@ -7,16 +7,16 @@ resource "yandex_container_repository" "ai-radio-caster" {
   name = "${yandex_container_registry.ai-radio-registry.id}/ai-radio-caster"
 }
 
-resource "yandex_container_registry_iam_binding" "ai_radio_caster_puller" {
-  registry_id = yandex_container_repository.ai-radio-caster.id
-  role        = "container-registry.images.puller"
+resource "yandex_container_repository_iam_binding" "ai-radio-caster-puller" {
+  repository_id = yandex_container_repository.ai-radio-caster.id
+  role          = "container-registry.images.puller"
   members = [
     "group:${yandex_organizationmanager_group.ai-radio-dev.id}",
   ]
 }
 
-resource "yandex_container_repository_lifecycle_policy" "ai_radio_caster_policy" {
-  name          = "ai_radio_caster_policy"
+resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy" {
+  name          = "ai-radio-caster-policy"
   status        = "active"
   repository_id = yandex_container_repository.ai-radio-caster.id
 

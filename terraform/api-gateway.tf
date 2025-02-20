@@ -1,6 +1,6 @@
-resource "yandex_api_gateway" "static_gateway" {
+resource "yandex_api_gateway" "static-gateway" {
   folder_id   = local.network_folder_id
-  name        = "ai_radio_static_gateway"
+  name        = "static-gateway"
   description = "gateway for ai-radio.ru static website"
   spec        = file("../openapi/static.yaml")
   connectivity {

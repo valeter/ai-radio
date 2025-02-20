@@ -9,7 +9,7 @@ paths:
       operationId: index
       x-yc-apigateway-integration:
         type: object_storage
-        bucket: 'ai_radio_website'
+        bucket: 'ai-radio-website'
         object: 'index.html'
   /ping:
     get:
@@ -29,5 +29,5 @@ paths:
             type: string
       x-yc-apigateway-integration:
         type: object_storage
-        bucket: 'ai_radio_website'
+        bucket: 'ai-radio-website'
         object: '{file}'

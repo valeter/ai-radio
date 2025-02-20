@@ -13,7 +13,7 @@ resource "yandex_dns_recordset" "ai_radio_aname_root" {
   name    = "@"
   type    = "ANAME"
   ttl     = 600
-  data    = [yandex_api_gateway.static_gateway.domain]
+  data    = [yandex_api_gateway.static-gateway.domain]
 }
 
 resource "yandex_dns_recordset" "ai_radio_aname_www" {
@@ -21,7 +21,7 @@ resource "yandex_dns_recordset" "ai_radio_aname_www" {
   name    = "www.ai-radio.ru."
   type    = "ANAME"
   ttl     = 600
-  data    = [yandex_api_gateway.static_gateway.domain]
+  data    = [yandex_api_gateway.static-gateway.domain]
 }
 
 resource "yandex_dns_recordset" "ai_radio_a_stream" {
