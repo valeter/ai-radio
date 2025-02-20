@@ -3,11 +3,6 @@ resource "yandex_resourcemanager_cloud" "ai-radio-prod" {
   name            = "ai-radio-prod"
 }
 
-resource "yandex_billing_cloud_binding" "ai-radio-prod-billing" {
-  billing_account_id = var.billing_account_id
-  cloud_id           = yandex_resourcemanager_cloud.ai-radio-prod.id
-}
-
 resource "yandex_resourcemanager_folder" "network" {
   cloud_id = yandex_resourcemanager_cloud.ai-radio-prod.id
   name     = "network"
