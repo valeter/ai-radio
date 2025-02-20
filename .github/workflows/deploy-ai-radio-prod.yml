@@ -11,7 +11,6 @@ env:
   TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
   SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
-  TF_VAR_tfstate_bucket: ${{ secrets.TF_VAR_tfstate_bucket }}
   TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
   TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
   TF_VAR_operations: ${{ secrets.TF_VAR_operations }}
