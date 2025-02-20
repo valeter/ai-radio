@@ -1,30 +1,24 @@
-resource "yandex_container_registry" "ai-radio-registry" {
-  name      = "ai-radio-registry"
-  folder_id = var.folder_id
+resource "yandex_container_registry" "ai_radio_registry" {
+  name      = "ai_radio_registry"
+  folder_id = local.registry_folder_id
 }
 
-resource "yandex_container_registry_iam_binding" "puller" {
-  registry_id = yandex_container_registry.ai-radio-registry.id
-  role        = "container-registry.images.puller"
+resource "yandex_container_repository" "ai_radio_caster" {
+  name = "${yandex_container_registry.ai_radio_registry.id}/ai_radio_caster"
+}
 
+resource "yandex_container_registry_iam_binding" "ai_radio_caster_puller" {
+  registry_id = yandex_container_repository.ai_radio_caster.id
+  role        = "container-registry.images.puller"
   members = [
-    "system:group:organization:${var.organization_id}:users",
+    "group:${yandex_organizationmanager_group.ai_radio_dev.id}",
   ]
 }
 
-resource "yandex_container_repository" "ai-radio-caster" {
-  name = "${yandex_container_registry.ai-radio-registry.id}/ai-radio-caster"
-}
-
-output "ai-radio-caster-repository-name" {
-  value     = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
-  sensitive = true
-}
-
-resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy" {
-  name          = "ai-radio-caster-policy"
+resource "yandex_container_repository_lifecycle_policy" "ai_radio_caster_policy" {
+  name          = "ai_radio_caster_policy"
   status        = "active"
-  repository_id = yandex_container_repository.ai-radio-caster.id
+  repository_id = yandex_container_repository.ai_radio_caster.id
 
   rule {
     description  = "remove old versions"
@@ -33,4 +27,3 @@ resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy"
     retained_top = 1
   }
 }
-

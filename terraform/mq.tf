@@ -11,14 +11,14 @@ resource "yandex_message_queue" "ai_radio_voice_gen" {
   receive_wait_time_seconds   = 2
   fifo_queue                  = true
   content_based_deduplication = true
-  access_key                  = yandex_iam_service_account_static_access_key.ai-radio-mq-static-key.access_key
-  secret_key                  = yandex_iam_service_account_static_access_key.ai-radio-mq-static-key.secret_key
+  access_key                  = data.yandex_lockbox_secret_version.aws_sa_static_key_version.entries[1].text_value
+  secret_key                  = data.yandex_lockbox_secret_version.aws_sa_static_key_version.entries[0].text_value
 }
 
 resource "yandex_message_queue" "ai_radio_voice_gen_dlq" {
   name                        = "ai_radio_voice_gen_dlq.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
-  access_key                  = yandex_iam_service_account_static_access_key.ai-radio-mq-static-key.access_key
-  secret_key                  = yandex_iam_service_account_static_access_key.ai-radio-mq-static-key.secret_key
+  access_key                  = data.yandex_lockbox_secret_version.aws_sa_static_key_version.entries[1].text_value
+  secret_key                  = data.yandex_lockbox_secret_version.aws_sa_static_key_version.entries[0].text_value
 }
