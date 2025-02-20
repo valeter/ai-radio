@@ -3,6 +3,7 @@ resource "yandex_iam_service_account" "container_registry_sa" {
   name      = "ai-radio-registry-sa"
   folder_id = local.sa_folder_id
 }
+
 resource "yandex_resourcemanager_folder_iam_member" "container_registry_sa_images_puller" {
   folder_id = local.sa_folder_id
   role      = "container-registry.images.puller"
