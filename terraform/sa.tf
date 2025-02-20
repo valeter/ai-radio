@@ -48,7 +48,7 @@ resource "yandex_iam_service_account" "tts_sa" {
   folder_id   = local.sa_folder_id
   name        = "tts_sa"
   description = "tts service account for ai-radio.ru"
-}Terraform Yandex Cloud Integration check
+}
 
 resource "yandex_resourcemanager_folder_iam_member" "tts_sa_tts_user" {
   folder_id = local.sa_folder_id
