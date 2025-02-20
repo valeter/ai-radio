@@ -58,7 +58,7 @@ resource "yandex_resourcemanager_folder_iam_member" "tts_sa_tts_user" {
 
 resource "yandex_iam_service_account_api_key" "tts_sa_api_key" {
   service_account_id = yandex_iam_service_account.tts_sa.id
-  scopes              = ["yc.ai.speechkitTts.execute"]
+  scopes             = ["yc.ai.speechkitTts.execute"]
   output_to_lockbox {
     entry_for_secret_key = "SECRET_KEY"
     secret_id            = yandex_lockbox_secret.tts.id
