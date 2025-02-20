@@ -12,7 +12,7 @@ resource "yandex_resourcemanager_folder_iam_member" "container_registry_sa_image
 // object storage and sqs
 resource "yandex_iam_service_account" "aws-sa" {
   folder_id   = local.sa_folder_id
-  name        = "aws_sa"
+  name        = "aws-sa"
   description = "AWS-like service account for ai-radio.ru"
 }
 
@@ -46,7 +46,7 @@ resource "yandex_iam_service_account_static_access_key" "aws_sa_static_key" {
 // speech kit tts
 resource "yandex_iam_service_account" "tts-sa" {
   folder_id   = local.sa_folder_id
-  name        = "tts_sa"
+  name        = "tts-sa"
   description = "tts service account for ai-radio.ru"
 }
 
