@@ -8,7 +8,7 @@ resource "yandex_lockbox_secret_iam_binding" "aws_viewer" {
   secret_id = yandex_lockbox_secret.aws.id
   role      = "viewer"
   members = [
-    "group:${yandex_organizationmanager_group.ai_radio_ops.id}",
+    "group:${yandex_organizationmanager_group.ai-radio-ops.id}",
   ]
 }
 
@@ -30,7 +30,7 @@ resource "yandex_lockbox_secret_iam_binding" "tts_viewer" {
   secret_id = yandex_lockbox_secret.tts.id
   role      = "viewer"
   members = [
-    "group:${yandex_organizationmanager_group.ai_radio_ops.id}",
+    "group:${yandex_organizationmanager_group.ai-radio-ops.id}",
   ]
 }
 

@@ -1,5 +1,5 @@
-resource "yandex_vpc_network" "network" {
-  name      = "network"
+resource "yandex_vpc_network" "default-network" {
+  name      = "default-network"
   folder_id = local.network_folder_id
 }
 
@@ -7,7 +7,7 @@ resource "yandex_vpc_subnet" "private_subnet_d" {
   name           = "private_subnet_d"
   v4_cidr_blocks = ["192.168.5.0/24"]
   zone           = "ru-central1-d"
-  network_id     = yandex_vpc_network.network.id
+  network_id     = yandex_vpc_network.default-network.id
   folder_id      = local.network_folder_id
   route_table_id = yandex_vpc_route_table.route_table.id
 }
@@ -16,33 +16,33 @@ resource "yandex_vpc_subnet" "private_subnet_a" {
   name           = "private_subnet_a"
   v4_cidr_blocks = ["192.168.15.0/24"]
   zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.network.id
+  network_id     = yandex_vpc_network.default-network.id
   folder_id      = local.network_folder_id
   route_table_id = yandex_vpc_route_table.route_table.id
 }
 
-resource "yandex_vpc_gateway" "egress_gateway" {
-  name      = "egress_gateway"
+resource "yandex_vpc_gateway" "egress-gateway" {
+  name      = "egress-gateway"
   folder_id = local.network_folder_id
   shared_egress_gateway {}
 }
 
 resource "yandex_vpc_route_table" "route_table" {
   name       = "route_table"
-  network_id = yandex_vpc_network.network.id
+  network_id = yandex_vpc_network.default-network.id
   folder_id  = local.network_folder_id
 
   dynamic "static_route" {
-    for_each = yandex_vpc_gateway.egress_gateway
+    for_each = yandex_vpc_gateway.egress-gateway
     content {
       destination_prefix = "0.0.0.0/0"
-      gateway_id         = yandex_vpc_gateway.egress_gateway.id
+      gateway_id         = yandex_vpc_gateway.egress-gateway.id
     }
   }
 }
 
 resource "yandex_vpc_default_security_group" "default_sg" {
-  network_id = yandex_vpc_network.network.id
+  network_id = yandex_vpc_network.default-network.id
   folder_id  = local.network_folder_id
 
   ingress {
@@ -101,9 +101,9 @@ resource "yandex_vpc_default_security_group" "default_sg" {
   }
 }
 
-resource "yandex_vpc_address" "ai_radio_stream_ip" {
+resource "yandex_vpc_address" "ai-radio-stream-ip" {
   folder_id = local.network_folder_id
-  name      = "ai_radio_stream_ip_d"
+  name      = "ai-radio-stream-ip"
   external_ipv4_address {
     zone_id                  = "ru-central1-d"
     ddos_protection_provider = "qrator"
@@ -112,5 +112,5 @@ resource "yandex_vpc_address" "ai_radio_stream_ip" {
 
 output "ai_radio_stream_ip" {
   description = "stream.ai-radio.ru ip"
-  value       = yandex_vpc_address.ai_radio_stream_ip.external_ipv4_address[0].address
+  value       = yandex_vpc_address.ai-radio-stream-ip.external_ipv4_address[0].address
 }

@@ -29,5 +29,5 @@ resource "yandex_dns_recordset" "ai_radio_a_stream" {
   name    = "stream.ai-radio.ru."
   type    = "A"
   ttl     = 600
-  data    = [yandex_vpc_address.ai_radio_stream_ip.external_ipv4_address[0].address]
+  data    = [yandex_vpc_address.ai-radio-stream-ip.external_ipv4_address[0].address]
 }
