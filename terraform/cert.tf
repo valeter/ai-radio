@@ -26,11 +26,11 @@ data "yandex_cm_certificate_content" "ai-radio-cert-content" {
 }
 
 output "ai_radio_cert_key" {
-  value = data.yandex_cm_certificate_content.ai-radio-cert-content.private_key
+  value     = data.yandex_cm_certificate_content.ai-radio-cert-content.private_key
   sensitive = true
 }
 
 output "ai_radio_cert_crt" {
-  value = data.yandex_cm_certificate_content.ai-radio-cert-content.certificates
+  value     = data.yandex_cm_certificate_content.ai-radio-cert-content.certificates
   sensitive = true
 }

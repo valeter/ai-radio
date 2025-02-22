@@ -29,6 +29,6 @@ resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy"
 }
 
 output "caster_docker_repository" {
-  value = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
+  value     = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
   sensitive = true
 }

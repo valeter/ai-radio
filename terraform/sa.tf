@@ -52,9 +52,9 @@ resource "yandex_iam_service_account" "tts-sa" {
 }
 
 resource "yandex_resourcemanager_cloud_iam_member" "tts-sa-tts-user" {
-  cloud_id  = yandex_resourcemanager_cloud.ai-radio.id
-  role      = "ai.speechkit-tts.user"
-  member    = "serviceAccount:${yandex_iam_service_account.tts-sa.id}"
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "ai.speechkit-tts.user"
+  member   = "serviceAccount:${yandex_iam_service_account.tts-sa.id}"
 }
 
 resource "yandex_iam_service_account_api_key" "tts-sa-api-key" {
