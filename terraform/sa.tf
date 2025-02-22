@@ -10,6 +10,14 @@ resource "yandex_resourcemanager_folder_iam_member" "ai-radio-crsa-images-puller
   member    = "serviceAccount:${yandex_iam_service_account.ai-radio-container-registry-sa.id}"
 }
 
+resource "yandex_iam_service_account_key" "ai-radio-crsa-key" {
+  service_account_id = yandex_iam_service_account.ai-radio-container-registry-sa.id
+  output_to_lockbox {
+    entry_for_private_key = "key"
+    secret_id             = yandex_lockbox_secret.docker.id
+  }
+}
+
 // object storage and sqs
 resource "yandex_iam_service_account" "aws-sa" {
   folder_id   = local.sa_folder_id

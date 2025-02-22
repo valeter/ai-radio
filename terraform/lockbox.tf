@@ -1,7 +1,21 @@
+// container registry
+resource "yandex_lockbox_secret" "docker" {
+  folder_id = local.secrets_folder_id
+  name      = "docker"
+}
+
+resource "yandex_lockbox_secret_iam_binding" "docker-viewer" {
+  secret_id = yandex_lockbox_secret.docker.id
+  role      = "viewer"
+  members = [
+    "group:${yandex_organizationmanager_group.ai-radio-dev.id}",
+  ]
+}
+
 // object storage and message queue
 resource "yandex_lockbox_secret" "aws" {
   folder_id = local.secrets_folder_id
-  name      = "ai_radio_music"
+  name      = "aws"
 }
 
 resource "yandex_lockbox_secret_iam_binding" "aws-viewer" {

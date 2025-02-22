@@ -11,8 +11,17 @@ env:
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
   TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
-  ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
-  SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
+  AWS_TF_ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
+  AWS_TF_SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+  DOCKER_REGISTRY_KEY_ID: ${{ secrets.DOCKER_REGISTRY_KEY_ID }}
+  DOCKER_REGISTRY_SA_ID: ${{ secrets.DOCKER_REGISTRY_SA_ID }}
+  DOCKER_REGISTRY_PRIVATE_KEY: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
+  AWS_STATIC_ACCESS_KEY: ${{ secrets.AWS_STATIC_ACCESS_KEY }}
+  AWS_STATIC_SECRET_KEY: ${{ secrets.AWS_STATIC_SECRET_KEY }}
+  AI_RADIO_CERT_CHAIN: ${{ secrets.AI_RADIO_CERT_CHAIN }}
+  AI_RADIO_CERT_KEY: ${{ secrets.AI_RADIO_CERT_KEY }}
+
   TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
   TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
   TF_VAR_operations: ${{ secrets.TF_VAR_operations }}
@@ -39,7 +48,7 @@ jobs:
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Terraform Plan
         run: terraform -chdir=terraform/ plan -out=tfplan
@@ -69,20 +78,12 @@ jobs:
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
-
-      - name: Configure Yandex Cloud credentials
-        run: |
-          echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output --raw aws_access_key)" >> $GITHUB_ENV
-          echo "YC_WEBSITE_SECRET_KEY=$(terraform -chdir=terraform/ output --raw aws_secret_key)" >> $GITHUB_ENV
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Configure AWS CLI for Yandex Cloud
-        env:
-          YC_WEBSITE_ACCESS_KEY: ${{ env.YC_WEBSITE_ACCESS_KEY }}
-          YC_WEBSITE_SECRET_KEY: ${{ env.YC_WEBSITE_SECRET_KEY }}
         run: |
-          aws configure set aws_access_key_id $YC_WEBSITE_ACCESS_KEY
-          aws configure set aws_secret_access_key $YC_WEBSITE_SECRET_KEY
+          aws configure set aws_access_key_id $AWS_STATIC_ACCESS_KEY
+          aws configure set aws_secret_access_key $AWS_STATIC_SECRET_KEY
           aws configure set default.region ru-central1
           aws configure set default.endpoint-url https://storage.yandexcloud.net
 
@@ -121,33 +122,31 @@ jobs:
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
-      - name: Configure Yandex Cloud credentials
-        run: |
-          echo "AWS_ACCESS_KEY=$(terraform -chdir=terraform/ output --raw aws_access_key)" >> $GITHUB_ENV
-          echo "AWS_SECRET_KEY=$(terraform -chdir=terraform/ output --raw aws_secret_key)" >> $GITHUB_ENV
-
-      - name: Configure https certificates
-        run: |
-          echo "AI_RADIO_CRT_CHAIN=$(terraform -chdir=terraform/ output -json ai_radio_cert_crt | jq '. | join("")')" >> $GITHUB_ENV
-          echo "AI_RADIO_CRT_KEY=$(terraform -chdir=terraform/ output -json ai_radio_cert_key | jq '.')" >> $GITHUB_ENV
-          
       - name: Configure docker image name
         run: |
           echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output caster_docker_repository)" >> $GITHUB_ENV
 
+      - name: IAM Token
+        id: issue-iam-token
+        uses: yc-actions/yc-iam-token@v1
+        with:
+          yc-key-id: ${{ secrets.DOCKER_REGISTRY_KEY_ID }}
+          yc-service-account-id: ${{ secrets.DOCKER_REGISTRY_SA_ID }}
+          yc-private-key: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
+
       - name: Login to yc container registry
         run: |
-          echo $YC_OAUTH_TOKEN | docker login --username oauth --password-stdin cr.yandex
+          echo ${{ steps.issue-iam-token.outputs.token }}  | docker login --username iam --password-stdin cr.yandex
 
       - name: Build docker caster image
         run: |
-          docker buildx build \
-            --build-arg AWS_ACCESS_KEY=$AWS_ACCESS_KEY \
-            --build-arg AWS_SECRET_KEY=$AWS_SECRET_KEY \
-            --build-arg AI_RADIO_CRT_CHAIN=$AI_RADIO_CRT_CHAIN \
-            --build-arg AI_RADIO_CRT_KEY=$AI_RADIO_CRT_KEY \
+          docker build \
+            --build-arg AWS_ACCESS_KEY=$AWS_STATIC_ACCESS_KEY \
+            --build-arg AWS_SECRET_KEY=$AWS_STATIC_SECRET_KEY \
+            --build-arg AI_RADIO_CRT_CHAIN=$AI_RADIO_CERT_CHAIN \
+            --build-arg AI_RADIO_CRT_KEY=$AI_RADIO_CERT_KEY \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
       - name: Tag docker image
