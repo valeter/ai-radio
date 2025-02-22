@@ -8,13 +8,15 @@ ENV NGINX_PORT=443
 
 # input secrets
 RUN mkdir -p /etc/secrets
+RUN chmod 600 /etc/secrets
 RUN --mount=type=secret,id=aws_access_key \
     --mount=type=secret,id=aws_secret_key \
     printf "%s%s%s" "$(cat /run/secrets/aws_access_key)" ":" "$(cat /run/secrets/aws_secret_key)" > /etc/secrets/aws_creds
 RUN --mount=type=secret,id=ai_radio_crt_chain \
     cp /run/secrets/ai_radio_crt_chain /etc/secrets/ai_radio_crt_chain
 RUN --mount=type=secret,id=ai_radio_crt_key \
-    cp /run/secrets/ai_radio_crt_key /etc/secrets/ai_radio_crt_key
+    cp /run/secrets/ai_radio_crt_key /etc/secrets/ai_radio_crt_key \
+RUN chmod 600 /etc/secrets/*
 
 # user config
 RUN useradd -ms /bin/bash icecast
@@ -30,7 +32,6 @@ RUN apt-get update && apt-get install -y \
     icecast2 \
     nginx \
     supervisor \
-    curl \
     liquidsoap \
     s3fs \
     && apt-get clean \
@@ -73,7 +74,7 @@ RUN sed -i "s/{{ICECAST_PORT}}/$ICECAST_PORT/g" /etc/nginx/nginx.conf
 RUN sed -i "s/{{NGINX_PORT}}/$NGINX_PORT/g" /etc/nginx/nginx.conf
 RUN chown -R nginxuser:nginxuser /etc/nginx/nginx.conf
 RUN chmod 600 /etc/nginx/nginx.conf
-RUN cp /run/secrets/ai_radio_crt_chain /etc/nginx/ai-radio-chain.crt
+RUN cp /etc/secrets/ai_radio_crt_chain /etc/nginx/ai-radio-chain.crt
 RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.crt
 RUN chmod 600 /etc/nginx/ai-radio-chain.crt
 RUN cp /etc/secrets/ai_radio_crt_key /etc/nginx/ai-radio-chain.key
