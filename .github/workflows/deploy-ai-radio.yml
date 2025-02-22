@@ -67,19 +67,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Configure Yandex Cloud credentials
-        run: |
-          mkdir -p ~/.config/yandex
-          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
-
-      - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
-
       - name: Configure AWS CLI for Yandex Cloud
         run: |
           aws configure set aws_access_key_id $AWS_STATIC_ACCESS_KEY
@@ -143,10 +130,10 @@ jobs:
       - name: Build docker caster image
         run: |
           docker build \
-            --secret "id=AWS_ACCESS_KEY,env=$AWS_STATIC_ACCESS_KEY" \
-            --secret "id=AWS_SECRET_KEY,env=$AWS_STATIC_SECRET_KEY" \
-            --secret "id=AI_RADIO_CRT_CHAIN,env=$AI_RADIO_CERT_CHAIN" \
-            --secret "id=AI_RADIO_CRT_KEY,env=$AI_RADIO_CERT_KEY" \
+            --secret "id=aws_access_key,env=$AWS_STATIC_ACCESS_KEY" \
+            --secret "id=aws_secret_key,env=$AWS_STATIC_SECRET_KEY" \
+            --secret "id=ai_radio_crt_chain,env=$AI_RADIO_CERT_CHAIN" \
+            --secret "id=ai_radio_crt_key,env=$AI_RADIO_CERT_KEY" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
       - name: Tag docker image

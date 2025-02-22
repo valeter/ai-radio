@@ -7,10 +7,14 @@ ENV ICECAST_PORT=80
 ENV NGINX_PORT=443
 
 # input secrets
-RUN --mount=type=secret,id=AWS_ACCESS_KEY,env=AWS_ACCESS_KEY
-RUN --mount=type=secret,id=AWS_SECRET_KEY,env=AWS_SECRET_KEY
-RUN --mount=type=secret,id=AI_RADIO_CRT_CHAIN,env=AI_RADIO_CRT_CHAIN
-RUN --mount=type=secret,id=AI_RADIO_CRT_KEY,env=AI_RADIO_CRT_KEY
+RUN mkdir -p /etc/secrets
+RUN --mount=type=secret,id=aws_access_key \
+    --mount=type=secret,id=aws_secret_key \
+    printf "%s%s%s" "$(cat /run/secrets/aws_access_key)" ":" "$(cat /run/secrets/aws_secret_key)" > /etc/secrets/aws_creds
+RUN --mount=type=secret,id=ai_radio_crt_chain \
+    cp /run/secrets/ai_radio_crt_chain > /etc/secrets/ai_radio_crt_chain
+RUN --mount=type=secret,id=ai_radio_crt_key \
+    cp /run/secrets/ai_radio_crt_key > /etc/secrets/ai_radio_crt_key
 
 # user config
 RUN useradd -ms /bin/bash icecast
@@ -36,11 +40,11 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir /music
 RUN chown -R icecast:icecast /music
 RUN chmod 600 /music/*
-RUN echo $AWS_ACCESS_KEY:$AWS_SECRET_KEY > /root/.passwd-s3fs && \
+RUN cp /etc/secrets/aws_creds /root/.passwd-s3fs && \
     chmod 600 /root/.passwd-s3fs \
 
 # prepare certs
-RUN echo -e $AI_RADIO_CRT_CHAIN > /usr/local/share/ca-certificates/ai-radio.crt
+RUN cp /etc/secrets/ai_radio_crt_chain /usr/local/share/ca-certificates/ai-radio.crt
 RUN chmod 644 /usr/local/share/ca-certificates/ai-radio.crt
 RUN update-ca-certificates
 
@@ -69,10 +73,10 @@ RUN sed -i "s/{{ICECAST_PORT}}/$ICECAST_PORT/g" /etc/nginx/nginx.conf
 RUN sed -i "s/{{NGINX_PORT}}/$NGINX_PORT/g" /etc/nginx/nginx.conf
 RUN chown -R nginxuser:nginxuser /etc/nginx/nginx.conf
 RUN chmod 600 /etc/nginx/nginx.conf
-RUN echo -e $AI_RADIO_CRT_CHAIN > /etc/nginx/ai-radio-chain.crt
+RUN cp /run/secrets/ai_radio_crt_chain /etc/nginx/ai-radio-chain.crt
 RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.crt
 RUN chmod 600 /etc/nginx/ai-radio-chain.crt
-RUN echo -e $AI_RADIO_CRT_KEY > /etc/nginx/ai-radio-chain.key
+RUN cp /etc/secrets/ai_radio_crt_key /etc/nginx/ai-radio-chain.key
 RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.key
 RUN chmod 600 /etc/nginx/ai-radio-chain.key
 
