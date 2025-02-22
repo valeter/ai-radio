@@ -44,7 +44,7 @@ RUN echo $AWS_ACCESS_KEY:$AWS_SECRET_KEY > /root/.passwd-s3fs && \
     chmod 600 /root/.passwd-s3fs \
 
 # prepare certs
-RUN echo $AI_RADIO_CRT_CHAIN > /usr/local/share/ca-certificates/ai-radio.crt
+RUN echo -e $AI_RADIO_CRT_CHAIN > /usr/local/share/ca-certificates/ai-radio.crt
 RUN chmod 644 /usr/local/share/ca-certificates/ai-radio.crt
 RUN update-ca-certificates
 
@@ -73,10 +73,10 @@ RUN sed -i "s/{{ICECAST_PORT}}/$ICECAST_PORT/g" /etc/nginx/nginx.conf
 RUN sed -i "s/{{NGINX_PORT}}/$NGINX_PORT/g" /etc/nginx/nginx.conf
 RUN chown -R nginxuser:nginxuser /etc/nginx/nginx.conf
 RUN chmod 600 /etc/nginx/nginx.conf
-RUN echo $AI_RADIO_CRT_CHAIN > /etc/nginx/ai-radio-chain.crt
+RUN echo -e $AI_RADIO_CRT_CHAIN > /etc/nginx/ai-radio-chain.crt
 RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.crt
 RUN chmod 600 /etc/nginx/ai-radio-chain.crt
-RUN echo $AI_RADIO_CRT_KEY > /etc/nginx/ai-radio-chain.key
+RUN echo -e $AI_RADIO_CRT_KEY > /etc/nginx/ai-radio-chain.key
 RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.key
 RUN chmod 600 /etc/nginx/ai-radio-chain.key
 

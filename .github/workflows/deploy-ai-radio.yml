@@ -92,7 +92,7 @@ jobs:
 
       - name: Sync example music to Yandex Cloud Storage
         run: |
-          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-music
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./music s3://ai-radio-music
 
   deploy-docker:
     needs: terraform
@@ -130,8 +130,8 @@ jobs:
 
       - name: Configure https certificates
         run: |
-          echo "AI_RADIO_CRT_CHAIN=$(terraform -chdir=terraform/ output -json ai_radio_cert_crt | jq --raw-output '. | join("")' | head -c -1)" >> $GITHUB_ENV
-          echo "AI_RADIO_CRT_KEY=$(terraform -chdir=terraform/ output --raw ai_radio_cert_key)" >> $GITHUB_ENV
+          echo "AI_RADIO_CRT_CHAIN=$(terraform -chdir=terraform/ output -json ai_radio_cert_crt | jq '. | join("")')" >> $GITHUB_ENV
+          echo "AI_RADIO_CRT_KEY=$(terraform -chdir=terraform/ output -json ai_radio_cert_key | jq '.')" >> $GITHUB_ENV
           
       - name: Configure docker image name
         run: |
