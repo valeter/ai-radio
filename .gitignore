@@ -32,7 +32,9 @@ go.work.sum
 secrets/
 
 .terraform/
-terraform-apply.sh
+terraform.sh
+terraform-init.sh
+terraform-vars.sh
 .terraform.lock.hcl
 terraform.tfstate
 

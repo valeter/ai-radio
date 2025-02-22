@@ -3,22 +3,22 @@ resource "yandex_vpc_network" "default-network" {
   folder_id = local.network_folder_id
 }
 
-resource "yandex_vpc_subnet" "private_subnet_d" {
-  name           = "private_subnet_d"
+resource "yandex_vpc_subnet" "private-subnet-d" {
+  name           = "private-subnet-d"
   v4_cidr_blocks = ["192.168.5.0/24"]
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.default-network.id
   folder_id      = local.network_folder_id
-  route_table_id = yandex_vpc_route_table.route_table.id
+  route_table_id = yandex_vpc_route_table.route-table.id
 }
 
-resource "yandex_vpc_subnet" "private_subnet_a" {
-  name           = "private_subnet_a"
+resource "yandex_vpc_subnet" "private-subnet-a" {
+  name           = "private-subnet-a"
   v4_cidr_blocks = ["192.168.15.0/24"]
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.default-network.id
   folder_id      = local.network_folder_id
-  route_table_id = yandex_vpc_route_table.route_table.id
+  route_table_id = yandex_vpc_route_table.route-table.id
 }
 
 resource "yandex_vpc_gateway" "egress-gateway" {
@@ -27,7 +27,7 @@ resource "yandex_vpc_gateway" "egress-gateway" {
   shared_egress_gateway {}
 }
 
-resource "yandex_vpc_route_table" "route_table" {
+resource "yandex_vpc_route_table" "route-table" {
   name       = "route_table"
   network_id = yandex_vpc_network.default-network.id
   folder_id  = local.network_folder_id
@@ -41,7 +41,7 @@ resource "yandex_vpc_route_table" "route_table" {
   }
 }
 
-resource "yandex_vpc_default_security_group" "default_sg" {
+resource "yandex_vpc_default_security_group" "default-sg" {
   network_id = yandex_vpc_network.default-network.id
   folder_id  = local.network_folder_id
 

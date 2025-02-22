@@ -14,4 +14,5 @@ resource "yandex_api_gateway" "static-gateway" {
     log_group_id = yandex_logging_group.static-gateway-log.id
   }
   execution_timeout = "30"
+  depends_on        = [yandex_storage_bucket.ai-radio-website-bucket]
 }

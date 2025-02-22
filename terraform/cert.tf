@@ -7,8 +7,8 @@ resource "yandex_cm_certificate" "ai-radio-cert" {
   }
 }
 
-resource "yandex_dns_recordset" "ai_radio_validation_record" {
-  zone_id = yandex_dns_zone.ai_radio_zone.id
+resource "yandex_dns_recordset" "ai-radio-validation-record" {
+  zone_id = yandex_dns_zone.ai-radio-zone.id
   name    = yandex_cm_certificate.ai-radio-cert.challenges[0].dns_name
   type    = yandex_cm_certificate.ai-radio-cert.challenges[0].dns_type
   data    = [yandex_cm_certificate.ai-radio-cert.challenges[0].dns_value]
@@ -16,7 +16,7 @@ resource "yandex_dns_recordset" "ai_radio_validation_record" {
 }
 
 data "yandex_cm_certificate" "ai-radio-cert" {
-  depends_on      = [yandex_dns_recordset.ai_radio_validation_record]
+  depends_on      = [yandex_dns_recordset.ai-radio-validation-record]
   certificate_id  = yandex_cm_certificate.ai-radio-cert.id
   wait_validation = true
 }
