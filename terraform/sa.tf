@@ -10,6 +10,12 @@ resource "yandex_resourcemanager_folder_iam_member" "ai-radio-crsa-images-puller
   member    = "serviceAccount:${yandex_iam_service_account.ai-radio-container-registry-sa.id}"
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "ai-radio-crsa-images-create" {
+  folder_id = local.registry_folder_id
+  role      = "container-registry.images.create"
+  member    = "serviceAccount:${yandex_iam_service_account.ai-radio-container-registry-sa.id}"
+}
+
 resource "yandex_iam_service_account_key" "ai-radio-crsa-key" {
   service_account_id = yandex_iam_service_account.ai-radio-container-registry-sa.id
   output_to_lockbox {

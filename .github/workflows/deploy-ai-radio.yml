@@ -9,7 +9,6 @@ env:
   JQ_VERSION: "1.7"
   TF_VERSION: "1.10.5"
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
-  YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
   TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
   AWS_TF_ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
   AWS_TF_SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
