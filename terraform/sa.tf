@@ -5,7 +5,7 @@ resource "yandex_iam_service_account" "ai-radio-container-registry-sa" {
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "ai-radio-crsa-images-puller" {
-  folder_id = local.sa_folder_id
+  folder_id = local.registry_folder_id
   role      = "container-registry.images.puller"
   member    = "serviceAccount:${yandex_iam_service_account.ai-radio-container-registry-sa.id}"
 }

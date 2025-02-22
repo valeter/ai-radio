@@ -76,7 +76,7 @@ jobs:
       - name: Configure Yandex Cloud credentials
         run: |
           echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output aws_access_key)" >> $YC_WEBSITE_ACCESS_KEY
-          echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output aws_secret_key)" >> $YC_WEBSITE_ACCESS_KEY
+          echo "YC_WEBSITE_SECRET_KEY=$(terraform -chdir=terraform/ output aws_secret_key)" >> $YC_WEBSITE_SECRET_KEY
 
       - name: Configure AWS CLI for Yandex Cloud
         env:
