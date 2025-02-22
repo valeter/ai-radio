@@ -6,10 +6,10 @@ enable_replaygain_metadata()
 log.file.path.set("/var/log/liquidsoap/ai-radio.log")
 
 # Music
-example_playlist = replaygain(playlist(mode="normal", "/music/playlist.m3u"))
+example_playlist = replaygain(playlist(mode="normal", "/music/example/playlist.m3u"))
 
 # If something goes wrong, we'll play this
-security = single("/music/white_noise.mp3")
+security = single("/music/example/white_noise.mp3")
 
 # Start building the feed with music
 radio = example_playlist

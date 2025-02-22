@@ -1,0 +1,160 @@
+name: Deploy ai-radio
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  JQ_VERSION: "1.7"
+  TF_VERSION: "1.10.5"
+  YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
+  YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
+  TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
+  ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
+  SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
+  TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
+  TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
+  TF_VAR_operations: ${{ secrets.TF_VAR_operations }}
+  TF_VAR_service_account_id: ${{ secrets.TF_VAR_service_account_id }}
+  TF_VAR_billing_account_id: ${{ secrets.TF_VAR_billing_account_id }}
+
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform/ plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan
+
+  upload-website:
+    needs: terraform
+
+    name: "Upload website"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output --raw aws_access_key)" >> $GITHUB_ENV
+          echo "YC_WEBSITE_SECRET_KEY=$(terraform -chdir=terraform/ output --raw aws_secret_key)" >> $GITHUB_ENV
+
+      - name: Configure AWS CLI for Yandex Cloud
+        env:
+          YC_WEBSITE_ACCESS_KEY: ${{ env.YC_WEBSITE_ACCESS_KEY }}
+          YC_WEBSITE_SECRET_KEY: ${{ env.YC_WEBSITE_SECRET_KEY }}
+        run: |
+          aws configure set aws_access_key_id $YC_WEBSITE_ACCESS_KEY
+          aws configure set aws_secret_access_key $YC_WEBSITE_SECRET_KEY
+          aws configure set default.region ru-central1
+          aws configure set default.endpoint-url https://storage.yandexcloud.net
+
+      - name: Sync website files to Yandex Cloud Storage
+        run: |
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
+
+      - name: Sync example music to Yandex Cloud Storage
+        run: |
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-music
+
+  deploy-docker:
+    needs: terraform
+
+    name: "Deploy docker"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install jq
+        uses: dcarbone/install-jq-action@v3
+        with:
+          version: '${{ env.JQ_VERSION }}'
+          force: 'false'
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          echo "AWS_ACCESS_KEY=$(terraform -chdir=terraform/ output --raw aws_access_key)" >> $GITHUB_ENV
+          echo "AWS_SECRET_KEY=$(terraform -chdir=terraform/ output --raw aws_secret_key)" >> $GITHUB_ENV
+
+      - name: Configure https certificates
+        run: |
+          echo "AI_RADIO_CRT_CHAIN=$(terraform -chdir=terraform/ output -json ai_radio_cert_crt | jq --raw-output '. | join("")' | head -c -1)" >> $GITHUB_ENV
+          echo "AI_RADIO_CRT_KEY=$(terraform -chdir=terraform/ output --raw ai_radio_cert_key)" >> $GITHUB_ENV
+          
+      - name: Configure docker image name
+        run: |
+          echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output caster_docker_repository)" >> $GITHUB_ENV
+
+      - name: Login to yc container registry
+        run: |
+          echo $YC_OAUTH_TOKEN | docker login --username oauth --password-stdin cr.yandex
+
+      - name: Build docker caster image
+        run: |
+          docker build \
+            --build-arg AWS_ACCESS_KEY=$AWS_ACCESS_KEY \
+            --build-arg AWS_SECRET_KEY=$AWS_SECRET_KEY \
+            --build-arg AI_RADIO_CRT_CHAIN=$AI_RADIO_CRT_CHAIN \
+            --build-arg AI_RADIO_CRT_KEY=$AI_RADIO_CRT_KEY \
+            -t $DOCKER_CASTER_IMAGE:latest ./caster
+
+      - name: Tag docker image
+        run: |
+          docker tag $DOCKER_CASTER_IMAGE:latest $DOCKER_CASTER_IMAGE:${{ github.sha }}
+
+      - name: Push docker image
+        run: |
+          docker push $DOCKER_CASTER_IMAGE:latest
+          docker push $DOCKER_CASTER_IMAGE:${{ github.sha }}
