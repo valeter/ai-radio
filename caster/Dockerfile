@@ -15,7 +15,7 @@ RUN --mount=type=secret,id=aws_access_key \
 RUN --mount=type=secret,id=ai_radio_crt_chain \
     cp /run/secrets/ai_radio_crt_chain /etc/secrets/ai_radio_crt_chain
 RUN --mount=type=secret,id=ai_radio_crt_key \
-    cp /run/secrets/ai_radio_crt_key /etc/secrets/ai_radio_crt_key \
+    cp /run/secrets/ai_radio_crt_key /etc/secrets/ai_radio_crt_key
 RUN chmod 600 /etc/secrets/*
 
 # user config
