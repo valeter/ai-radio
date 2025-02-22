@@ -143,12 +143,7 @@ jobs:
 
       - name: Build docker caster image
         run: |
-          docker build \
-            --build-arg AWS_ACCESS_KEY=$AWS_ACCESS_KEY \
-            --build-arg AWS_SECRET_KEY=$AWS_SECRET_KEY \
-            --build-arg AI_RADIO_CRT_CHAIN=$AI_RADIO_CRT_CHAIN \
-            --build-arg AI_RADIO_CRT_KEY=$AI_RADIO_CRT_KEY \
-            -t $DOCKER_CASTER_IMAGE:latest ./caster
+          docker build --build-arg AWS_ACCESS_KEY=$AWS_ACCESS_KEY --build-arg AWS_SECRET_KEY=$AWS_SECRET_KEY --build-arg AI_RADIO_CRT_CHAIN=$AI_RADIO_CRT_CHAIN --build-arg AI_RADIO_CRT_KEY=$AI_RADIO_CRT_KEY -t $DOCKER_CASTER_IMAGE:latest ./caster
 
       - name: Tag docker image
         run: |
