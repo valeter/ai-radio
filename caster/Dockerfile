@@ -12,9 +12,9 @@ RUN --mount=type=secret,id=aws_access_key \
     --mount=type=secret,id=aws_secret_key \
     printf "%s%s%s" "$(cat /run/secrets/aws_access_key)" ":" "$(cat /run/secrets/aws_secret_key)" > /etc/secrets/aws_creds
 RUN --mount=type=secret,id=ai_radio_crt_chain \
-    cp /run/secrets/ai_radio_crt_chain > /etc/secrets/ai_radio_crt_chain
+    cp /run/secrets/ai_radio_crt_chain /etc/secrets/ai_radio_crt_chain
 RUN --mount=type=secret,id=ai_radio_crt_key \
-    cp /run/secrets/ai_radio_crt_key > /etc/secrets/ai_radio_crt_key
+    cp /run/secrets/ai_radio_crt_key /etc/secrets/ai_radio_crt_key
 
 # user config
 RUN useradd -ms /bin/bash icecast
@@ -34,14 +34,14 @@ RUN apt-get update && apt-get install -y \
     liquidsoap \
     s3fs \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists/*
 
 ## s3fs-fuse preprare dir & credential config
 RUN mkdir /music
 RUN chown -R icecast:icecast /music
 RUN chmod 600 /music/*
 RUN cp /etc/secrets/aws_creds /root/.passwd-s3fs && \
-    chmod 600 /root/.passwd-s3fs \
+    chmod 600 /root/.passwd-s3fs
 
 # prepare certs
 RUN cp /etc/secrets/ai_radio_crt_chain /usr/local/share/ca-certificates/ai-radio.crt
