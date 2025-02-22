@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y \
 ## s3fs-fuse preprare dir & credential config
 RUN mkdir /music
 RUN chown -R icecast:icecast /music
-RUN chmod 600 /music/*
+RUN chmod 600 /music
 RUN cp /etc/secrets/aws_creds /root/.passwd-s3fs && \
     chmod 600 /root/.passwd-s3fs
 
