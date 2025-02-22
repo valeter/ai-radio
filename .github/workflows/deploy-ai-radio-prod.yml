@@ -69,10 +69,6 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
-      - name: Sleep for 60 seconds
-        run: sleep 30s
-        shell: bash
-
       - name: Configure Yandex Cloud credentials
         run: |
           echo "YC_WEBSITE_ACCESS_KEY=$(terraform -chdir=terraform/ output aws_access_key)" >> $GITHUB_ENV
@@ -90,4 +86,4 @@ jobs:
 
       - name: Sync website files to Yandex Cloud Storage
         run: |
-          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai_radio_website --delete
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
