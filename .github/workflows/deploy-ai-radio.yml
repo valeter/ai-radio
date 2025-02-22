@@ -143,10 +143,10 @@ jobs:
       - name: Build docker caster image
         run: |
           docker build \
-            --secret "AWS_ACCESS_KEY=$AWS_STATIC_ACCESS_KEY" \
-            --secret "AWS_SECRET_KEY=$AWS_STATIC_SECRET_KEY" \
-            --secret "AI_RADIO_CRT_CHAIN=$AI_RADIO_CERT_CHAIN" \
-            --secret "AI_RADIO_CRT_KEY=$AI_RADIO_CERT_KEY" \
+            --secret "id=AWS_ACCESS_KEY,env=$AWS_STATIC_ACCESS_KEY" \
+            --secret "id=AWS_SECRET_KEY,env=$AWS_STATIC_SECRET_KEY" \
+            --secret "id=AI_RADIO_CRT_CHAIN,env=$AI_RADIO_CERT_CHAIN" \
+            --secret "id=AI_RADIO_CRT_KEY,env=$AI_RADIO_CERT_KEY" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
       - name: Tag docker image
