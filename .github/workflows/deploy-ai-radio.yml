@@ -126,7 +126,7 @@ jobs:
 
       - name: Configure docker image name
         run: |
-          echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output caster_docker_repository)" >> $GITHUB_ENV
+          echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output --raw caster_docker_repository)" >> $GITHUB_ENV
 
       - name: IAM Token
         id: issue-iam-token
