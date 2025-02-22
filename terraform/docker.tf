@@ -27,3 +27,8 @@ resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy"
     retained_top = 1
   }
 }
+
+output "caster_docker_repository" {
+  value = "cr.yandex/${yandex_container_repository.ai-radio-caster.name}"
+  sensitive = true
+}

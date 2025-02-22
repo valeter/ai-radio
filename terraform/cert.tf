@@ -20,3 +20,17 @@ data "yandex_cm_certificate" "ai-radio-cert" {
   certificate_id  = yandex_cm_certificate.ai-radio-cert.id
   wait_validation = true
 }
+
+data "yandex_cm_certificate_content" "ai-radio-cert-content" {
+  certificate_id = yandex_cm_certificate.ai-radio-cert.id
+}
+
+output "ai_radio_cert_key" {
+  value = data.yandex_cm_certificate_content.ai-radio-cert-content.private_key
+  sensitive = true
+}
+
+output "ai_radio_cert_crt" {
+  value = data.yandex_cm_certificate_content.ai-radio-cert-content.certificates
+  sensitive = true
+}
