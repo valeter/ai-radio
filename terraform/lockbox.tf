@@ -1,4 +1,18 @@
 // container registry
+resource "yandex_lockbox_secret" "alb" {
+  folder_id = local.secrets_folder_id
+  name      = "alb"
+}
+
+resource "yandex_lockbox_secret_iam_binding" "alb-viewer" {
+  secret_id = yandex_lockbox_secret.alb.id
+  role      = "viewer"
+  members = [
+    "group:${yandex_organizationmanager_group.ai-radio-ops.id}",
+  ]
+}
+
+// container registry
 resource "yandex_lockbox_secret" "docker" {
   folder_id = local.secrets_folder_id
   name      = "docker"

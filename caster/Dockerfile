@@ -9,13 +9,13 @@ ENV NGINX_PORT=443
 # input secrets
 RUN mkdir -p /etc/secrets
 RUN chmod 600 /etc/secrets
-RUN --mount=type=secret,id=aws_access_key \
-    --mount=type=secret,id=aws_secret_key \
-    printf "%s%s%s" "$(cat /run/secrets/aws_access_key)" ":" "$(cat /run/secrets/aws_secret_key)" > /etc/secrets/aws_creds
-RUN --mount=type=secret,id=ai_radio_crt_chain \
-    cp /run/secrets/ai_radio_crt_chain /etc/secrets/ai_radio_crt_chain
-RUN --mount=type=secret,id=ai_radio_crt_key \
-    cp /run/secrets/ai_radio_crt_key /etc/secrets/ai_radio_crt_key
+RUN --mount=type=secret,id=AWS_ACCESS_KEY_ID \
+    --mount=type=secret,id=AWS_SECRET_KEY_ID \
+    printf "%s%s%s" "$(cat /run/secrets/AWS_ACCESS_KEY_ID)" ":" "$(cat /run/secrets/AWS_SECRET_KEY_ID)" > /etc/secrets/aws_creds
+RUN --mount=type=secret,id=AI_RADIO_CERT_CHAIN \
+    cp /run/secrets/AI_RADIO_CERT_CHAIN /etc/secrets/ai_radio_crt_chain
+RUN --mount=type=secret,id=AI_RADIO_CERT_KEY \
+    cp /run/secrets/AI_RADIO_CERT_KEY /etc/secrets/ai_radio_crt_key
 RUN chmod 600 /etc/secrets/*
 
 # user config
@@ -38,9 +38,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 ## s3fs-fuse preprare dir & credential config
+RUN echo user_allow_other | tee -a /etc/fuse.conf
 RUN mkdir /music
 RUN chown -R icecast:icecast /music
-RUN chmod 600 /music
+RUN chmod -R 600 /music
 RUN cp /etc/secrets/aws_creds /root/.passwd-s3fs && \
     chmod 600 /root/.passwd-s3fs
 

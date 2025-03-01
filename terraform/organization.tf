@@ -51,3 +51,14 @@ resource "yandex_organizationmanager_organization_iam_member" "ai-radio-ops-moni
   role            = "monitoring.editor"
   member          = "group:${yandex_organizationmanager_group.ai-radio-ops.id}"
 }
+
+resource "yandex_organizationmanager_os_login_settings" "os_login_settings" {
+  organization_id = var.organization_id
+  ssh_certificate_settings {
+    enabled = true
+  }
+  user_ssh_key_settings {
+    enabled               = true
+    allow_manage_own_keys = true
+  }
+}

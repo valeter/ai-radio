@@ -101,6 +101,59 @@ resource "yandex_vpc_default_security_group" "default-sg" {
   }
 }
 
+resource "yandex_vpc_security_group" "k8s-sg" {
+  network_id = yandex_vpc_network.default-network.id
+  folder_id  = local.network_folder_id
+
+  egress {
+    description    = "Для исходящего трафика, разрешающее хостам кластера подключаться к внешним ресурсам"
+    protocol       = "ANY"
+    from_port      = 0
+    to_port        = 65535
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description    = "Для доступа к API Kubernetes и управления кластером"
+    protocol       = "TCP"
+    port           = 6443
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description    = "Для доступа к API Kubernetes и управления кластером"
+    protocol       = "TCP"
+    port           = 443
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description       = "Для передачи служебного трафика между мастером и узлами"
+    protocol          = "ANY"
+    from_port         = 0
+    to_port           = 65535
+    predefined_target = "self_security_group"
+  }
+  ingress {
+    description    = "Для передачи трафика между подами и сервисами"
+    protocol       = "ANY"
+    from_port      = 0
+    to_port        = 65535
+    v4_cidr_blocks = ["10.112.0.0/16", "10.96.0.0/16"]
+  }
+  ingress {
+    description    = "Для подключения к узлам по протоколу SSH"
+    protocol       = "TCP"
+    port           = 22
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description       = "Для сетевого балансировщика нагрузки"
+    protocol          = "TCP"
+    from_port         = 0
+    to_port           = 65535
+    predefined_target = "loadbalancer_healthchecks"
+  }
+}
+
 resource "yandex_vpc_address" "ai-radio-stream-ip" {
   folder_id = local.network_folder_id
   name      = "ai-radio-stream-ip"

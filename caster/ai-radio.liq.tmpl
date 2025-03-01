@@ -1,19 +1,13 @@
 #!/usr/bin/liquidsoap
 
-enable_replaygain_metadata()
-
 # Log dir
 log.file.path.set("/var/log/liquidsoap/ai-radio.log")
-
-# Music
-example_playlist = replaygain(playlist(mode="normal", "/music/example/playlist.m3u"))
 
 # If something goes wrong, we'll play this
 security = single("/music/example/white_noise.mp3")
 
-# Start building the feed with music
-radio = example_playlist
-radio = fallback(track_sensitive = false, [radio, security])
+radio = playlist("/music/example/playlist.m3u")
+radio = fallback(track_sensitive=false, [radio, mksafe(security)])
 
 # Stream it out
 output.icecast(%mp3(bitrate=128, samplerate=22050, stereo=true), host = "localhost", port = {{ICECAST_PORT}}, password = "hackme", mount = "/", radio)

@@ -16,8 +16,8 @@ env:
   DOCKER_REGISTRY_KEY_ID: ${{ secrets.DOCKER_REGISTRY_KEY_ID }}
   DOCKER_REGISTRY_SA_ID: ${{ secrets.DOCKER_REGISTRY_SA_ID }}
   DOCKER_REGISTRY_PRIVATE_KEY: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
-  AWS_STATIC_ACCESS_KEY: ${{ secrets.AWS_STATIC_ACCESS_KEY }}
-  AWS_STATIC_SECRET_KEY: ${{ secrets.AWS_STATIC_SECRET_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_STATIC_ACCESS_KEY }}
+  AWS_SECRET_KEY_ID: ${{ secrets.AWS_STATIC_SECRET_KEY }}
   AI_RADIO_CERT_CHAIN: ${{ secrets.AI_RADIO_CERT_CHAIN }}
   AI_RADIO_CERT_KEY: ${{ secrets.AI_RADIO_CERT_KEY }}
 
@@ -128,11 +128,11 @@ jobs:
 
       - name: Build docker caster image
         run: |
-          docker build \
-            --secret "id=aws_access_key,env=$AWS_STATIC_ACCESS_KEY" \
-            --secret "id=aws_secret_key,env=$AWS_STATIC_SECRET_KEY" \
-            --secret "id=ai_radio_crt_chain,env=$AI_RADIO_CERT_CHAIN" \
-            --secret "id=ai_radio_crt_key,env=$AI_RADIO_CERT_KEY" \
+          docker build --no-cache \
+            --secret "id=AWS_ACCESS_KEY_ID,env=AWS_ACCESS_KEY_ID" \
+            --secret "id=AWS_SECRET_KEY_ID,env=AWS_SECRET_KEY_ID" \
+            --secret "id=AI_RADIO_CERT_CHAIN,env=AI_RADIO_CERT_CHAIN" \
+            --secret "id=AI_RADIO_CERT_KEY,env=AI_RADIO_CERT_KEY" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
       - name: Tag docker image

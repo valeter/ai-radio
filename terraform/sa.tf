@@ -1,12 +1,92 @@
+// alb
+resource "yandex_iam_service_account" "alb-sa" {
+  name      = "alb-sa"
+  folder_id = local.sa_folder_id
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-alb-editor" {
+  folder_id = local.network_folder_id
+  role      = "alb.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-public-admin" {
+  folder_id = local.network_folder_id
+  role      = "vpc.publicAdmin"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-private-admin" {
+  folder_id = local.network_folder_id
+  role      = "vpc.privateAdmin"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-cert-downloader" {
+  folder_id = local.network_folder_id
+  role      = "certificate-manager.certificates.downloader"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-compute-viewer" {
+  folder_id = local.network_folder_id
+  role      = "compute.viewer"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
+resource "yandex_iam_service_account_key" "alb-sa-key" {
+  service_account_id = yandex_iam_service_account.alb-sa.id
+  output_to_lockbox {
+    entry_for_private_key = "key"
+    secret_id             = yandex_lockbox_secret.alb.id
+  }
+}
+
+// k8s
+resource "yandex_iam_service_account" "k8s-sa" {
+  name      = "k8s-sa"
+  folder_id = local.sa_folder_id
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-logging-writer" {
+  folder_id = local.logging_folder_id
+  role      = "logging.writer"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-cluster-agent" {
+  folder_id = local.network_folder_id
+  role      = "k8s.clusters.agent"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-public-admin" {
+  folder_id = local.network_folder_id
+  role      = "vpc.publicAdmin"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-load-balancer-admin" {
+  folder_id = local.network_folder_id
+  role      = "load-balancer.admin"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+}
+
 // container registry
 resource "yandex_iam_service_account" "ai-radio-container-registry-sa" {
-  name      = "ai-radio-container-registry-sa"
+  name      = "reg-sa"
   folder_id = local.sa_folder_id
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "ai-radio-crsa-images-puller" {
   folder_id = local.registry_folder_id
   role      = "container-registry.images.puller"
+  member    = "serviceAccount:${yandex_iam_service_account.ai-radio-container-registry-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "ai-radio-crsa-images-pusher" {
+  folder_id = local.registry_folder_id
+  role      = "container-registry.images.pusher"
   member    = "serviceAccount:${yandex_iam_service_account.ai-radio-container-registry-sa.id}"
 }
 
