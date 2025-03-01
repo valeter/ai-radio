@@ -146,7 +146,7 @@ jobs:
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
       - name: Configure docker image name
         run: |
