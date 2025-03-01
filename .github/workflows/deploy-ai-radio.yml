@@ -70,8 +70,8 @@ jobs:
 
       - name: Configure AWS CLI for Yandex Cloud
         run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_KEY_ID
+          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_KEY_ID }}
           aws configure set default.region ru-central1
           aws configure set default.endpoint-url https://storage.yandexcloud.net
 
