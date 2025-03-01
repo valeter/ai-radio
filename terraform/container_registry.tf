@@ -4,7 +4,7 @@ resource "yandex_container_registry" "ai-radio-registry" {
 }
 
 resource "yandex_container_repository" "ai-radio-caster" {
-  name = "${yandex_container_registry.ai-radio-registry.name}/ai-radio-caster"
+  name = "${yandex_container_registry.ai-radio-registry.id}/ai-radio-caster"
 }
 
 resource "yandex_container_repository_iam_binding" "ai-radio-caster-puller" {
@@ -29,7 +29,7 @@ resource "yandex_container_repository_lifecycle_policy" "ai-radio-caster-policy"
 }
 
 resource "yandex_container_repository" "ai-radio-caster-helm" {
-  name = "${yandex_container_registry.ai-radio-registry.name}/ai-radio-caster-helm"
+  name = "${yandex_container_registry.ai-radio-registry.id}/ai-radio-caster-helm"
 }
 
 resource "yandex_container_repository_iam_binding" "ai-radio-caster-helm-puller" {
