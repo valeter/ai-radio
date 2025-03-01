@@ -23,7 +23,7 @@ env:
 
 jobs:
   terraform:
-    name: "Checks"
+    name: "Terraform checks"
     runs-on: ubuntu-latest
 
     defaults:
@@ -124,6 +124,14 @@ jobs:
               })
             }
 
+  docker-build:
+    name: "Docker build"
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    steps:
       - name: Configure docker image name
         run: |
           echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output --raw caster_docker_repository)" >> $GITHUB_ENV
