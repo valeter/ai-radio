@@ -21,6 +21,10 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
+        location /ping {
+            return 200 '0;OK';
+        }
+
         location ~^/.* {
             return 403;
         }
