@@ -68,13 +68,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS CLI for Yandex Cloud
-        run: |
-          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_KEY_ID }}
-          aws configure set default.region ru-central1
-          aws configure set default.endpoint-url https://storage.yandexcloud.net
-
       - name: Sync website files to Yandex Cloud Storage
         run: |
           aws --endpoint-url=https://storage.yandexcloud.net/ s3 sync ./website s3://ai-radio-website --delete
