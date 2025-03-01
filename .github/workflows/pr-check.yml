@@ -23,7 +23,7 @@ env:
 
 jobs:
   terraform:
-    name: "Terraform"
+    name: "Checks"
     runs-on: ubuntu-latest
 
     defaults:
@@ -127,6 +127,18 @@ jobs:
       - name: Configure docker image name
         run: |
           echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output --raw caster_docker_repository)" >> $GITHUB_ENV
+
+      - name: IAM Token
+        id: issue-iam-token
+        uses: yc-actions/yc-iam-token@v1
+        with:
+          yc-key-id: ${{ secrets.DOCKER_REGISTRY_KEY_ID }}
+          yc-service-account-id: ${{ secrets.DOCKER_REGISTRY_SA_ID }}
+          yc-private-key: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
+
+      - name: Login to yc container registry
+        run: |
+          echo ${{ steps.issue-iam-token.outputs.token }}  | docker login --username iam --password-stdin cr.yandex
 
       - name: Build docker caster image
         run: |
