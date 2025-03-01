@@ -6,7 +6,6 @@ on:
       - main
 
 env:
-  JQ_VERSION: "1.7"
   TF_VERSION: "1.10.5"
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
@@ -91,12 +90,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Install jq
-        uses: dcarbone/install-jq-action@v3
-        with:
-          version: '${{ env.JQ_VERSION }}'
-          force: 'false'
 
       - name: Configure Yandex Cloud credentials
         run: |
