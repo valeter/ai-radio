@@ -12,10 +12,6 @@ RUN chmod 600 /etc/secrets
 RUN --mount=type=secret,id=AWS_ACCESS_KEY_ID \
     --mount=type=secret,id=AWS_SECRET_KEY_ID \
     printf "%s%s%s" "$(cat /run/secrets/AWS_ACCESS_KEY_ID)" ":" "$(cat /run/secrets/AWS_SECRET_KEY_ID)" > /etc/secrets/aws_creds
-RUN --mount=type=secret,id=AI_RADIO_CERT_CHAIN \
-    cp /run/secrets/AI_RADIO_CERT_CHAIN /etc/secrets/ai_radio_crt_chain
-RUN --mount=type=secret,id=AI_RADIO_CERT_KEY \
-    cp /run/secrets/AI_RADIO_CERT_KEY /etc/secrets/ai_radio_crt_key
 RUN --mount=type=secret,id=ICECAST_PASSWORD \
     cp /run/secrets/ICECAST_PASSWORD /etc/secrets/icecast_password
 RUN chmod 600 /etc/secrets/*
@@ -44,13 +40,6 @@ RUN echo user_allow_other | tee -a /etc/fuse.conf
 RUN mkdir /music
 RUN chown -R icecast:icecast /music
 RUN chmod -R 600 /music
-RUN cp /etc/secrets/aws_creds /root/.passwd-s3fs && \
-    chmod 600 /root/.passwd-s3fs
-
-# prepare certs
-RUN cp /etc/secrets/ai_radio_crt_chain /usr/local/share/ca-certificates/ai-radio.crt
-RUN chmod 644 /usr/local/share/ca-certificates/ai-radio.crt
-RUN update-ca-certificates
 
 # icecast
 RUN mkdir -p /etc/icecast2
@@ -78,12 +67,6 @@ RUN sed -i "s/{{ICECAST_PORT}}/$ICECAST_PORT/g" /etc/nginx/nginx.conf
 RUN sed -i "s/{{NGINX_PORT}}/$NGINX_PORT/g" /etc/nginx/nginx.conf
 RUN chown -R nginxuser:nginxuser /etc/nginx/nginx.conf
 RUN chmod 600 /etc/nginx/nginx.conf
-RUN cp /etc/secrets/ai_radio_crt_chain /etc/nginx/ai-radio-chain.crt
-RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.crt
-RUN chmod 600 /etc/nginx/ai-radio-chain.crt
-RUN cp /etc/secrets/ai_radio_crt_key /etc/nginx/ai-radio-chain.key
-RUN chown -R nginxuser:nginxuser /etc/nginx/ai-radio-chain.key
-RUN chmod 600 /etc/nginx/ai-radio-chain.key
 
 # liquidsoap
 RUN mkdir -p /var/log/liquidsoap

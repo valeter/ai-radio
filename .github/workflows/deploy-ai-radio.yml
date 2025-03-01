@@ -18,10 +18,11 @@ env:
   DOCKER_REGISTRY_PRIVATE_KEY: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_STATIC_ACCESS_KEY }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_STATIC_SECRET_KEY }}
-  AWS_SECRET_KEY_ID: ${{ secrets.internal_v4_endpointAWS_STATIC_SECRET_KEY }}
+  AWS_SECRET_KEY_ID: ${{ secrets.AWS_STATIC_SECRET_KEY }}
   AWS_DEFAULT_REGION: "ru-central1"
   AI_RADIO_CERT_CHAIN: ${{ secrets.AI_RADIO_CERT_CHAIN }}
   AI_RADIO_CERT_KEY: ${{ secrets.AI_RADIO_CERT_KEY }}
+  ICECAST_PASSWORD: ${{ secrets.ICECAST_PASSWORD }}
 
   TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
   TF_VAR_developers: ${{ secrets.TF_VAR_developers }}
@@ -126,8 +127,6 @@ jobs:
           docker build --no-cache \
             --secret "id=AWS_ACCESS_KEY_ID,env=AWS_ACCESS_KEY_ID" \
             --secret "id=AWS_SECRET_KEY_ID,env=AWS_SECRET_KEY_ID" \
-            --secret "id=AI_RADIO_CERT_CHAIN,env=AI_RADIO_CERT_CHAIN" \
-            --secret "id=AI_RADIO_CERT_KEY,env=AI_RADIO_CERT_KEY" \
             --secret "id=ICECAST_PASSWORD,env=ICECAST_PASSWORD" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 

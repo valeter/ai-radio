@@ -7,11 +7,8 @@ events {}
 
 http {
     server {
-        listen {{NGINX_PORT}} ssl;
+        listen {{NGINX_PORT}};
         server_name ai-radio.ru;
-
-        ssl_certificate /etc/nginx/ai-radio-chain.crt;
-        ssl_certificate_key /etc/nginx/ai-radio-chain.key;
 
         location = / {
             proxy_pass http://localhost:{{ICECAST_PORT}};
