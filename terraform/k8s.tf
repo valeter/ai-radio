@@ -9,8 +9,8 @@ resource "yandex_kubernetes_cluster" "k8s-cluster" {
   node_service_account_id  = yandex_iam_service_account.ai-radio-container-registry-sa.id
 
   master {
-    public_ip         = true
-    version           = "1.30"
+    public_ip = true
+    version   = "1.30"
     maintenance_policy {
       auto_upgrade = true
       maintenance_window {
@@ -63,8 +63,8 @@ resource "yandex_kubernetes_node_group" "worker-nodes-d" {
     }
     network_interface {
       nat                = true
-      ipv4 = true
-      ipv6 = false
+      ipv4               = true
+      ipv6               = false
       security_group_ids = [yandex_vpc_security_group.k8s-sg.id]
       subnet_ids         = [yandex_vpc_subnet.private-subnet-d.id]
     }
