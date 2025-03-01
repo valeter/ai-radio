@@ -10,4 +10,4 @@ radio = playlist("/music/example/playlist.m3u")
 radio = fallback(track_sensitive=false, [radio, mksafe(security)])
 
 # Stream it out
-output.icecast(%mp3(bitrate=128, samplerate=22050, stereo=true), host = "localhost", port = {{ICECAST_PORT}}, password = "hackme", mount = "/", radio)
+output.icecast(%mp3(bitrate=128, samplerate=22050, stereo=true), host = "localhost", port = {{ICECAST_PORT}}, password = "{{ICECAST_PASSWORD}}", mount = "/", radio)

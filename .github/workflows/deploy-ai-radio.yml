@@ -68,8 +68,8 @@ jobs:
 
       - name: Configure AWS CLI for Yandex Cloud
         run: |
-          aws configure set aws_access_key_id $AWS_STATIC_ACCESS_KEY
-          aws configure set aws_secret_access_key $AWS_STATIC_SECRET_KEY
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_KEY_ID
           aws configure set default.region ru-central1
           aws configure set default.endpoint-url https://storage.yandexcloud.net
 
@@ -133,6 +133,7 @@ jobs:
             --secret "id=AWS_SECRET_KEY_ID,env=AWS_SECRET_KEY_ID" \
             --secret "id=AI_RADIO_CERT_CHAIN,env=AI_RADIO_CERT_CHAIN" \
             --secret "id=AI_RADIO_CERT_KEY,env=AI_RADIO_CERT_KEY" \
+            --secret "id=ICECAST_PASSWORD,env=ICECAST_PASSWORD" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
       - name: Tag docker image

@@ -3,8 +3,8 @@ FROM ubuntu:latest
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV ICECAST_PORT=80
-ENV NGINX_PORT=443
+ENV ICECAST_PORT=32744
+ENV NGINX_PORT=32745
 
 # input secrets
 RUN mkdir -p /etc/secrets
@@ -16,6 +16,8 @@ RUN --mount=type=secret,id=AI_RADIO_CERT_CHAIN \
     cp /run/secrets/AI_RADIO_CERT_CHAIN /etc/secrets/ai_radio_crt_chain
 RUN --mount=type=secret,id=AI_RADIO_CERT_KEY \
     cp /run/secrets/AI_RADIO_CERT_KEY /etc/secrets/ai_radio_crt_key
+RUN --mount=type=secret,id=ICECAST_PASSWORD \
+    cp /run/secrets/ICECAST_PASSWORD /etc/secrets/icecast_password
 RUN chmod 600 /etc/secrets/*
 
 # user config
@@ -60,6 +62,7 @@ RUN chown -R icecast:icecast /usr/share/icecast2/admin
 RUN chown -R icecast:icecast /usr/share/icecast2
 COPY icecast.xml.tmpl /etc/icecast2/icecast.xml
 RUN sed -i "s/{{ICECAST_PORT}}/$ICECAST_PORT/g" /etc/icecast2/icecast.xml
+RUN export ICECAST_PASSWORD=$(cat /etc/secrets/icecast_password); sed -i "s/{{ICECAST_PASSWORD}}/$ICECAST_PASSWORD/g" /etc/icecast2/icecast.xml
 RUN chown -R icecast:icecast /etc/icecast2/icecast.xml
 RUN chmod 600 /etc/icecast2/icecast.xml
 
@@ -87,6 +90,7 @@ RUN mkdir -p /var/log/liquidsoap
 RUN chown -R icecast:icecast /var/log/liquidsoap
 COPY ai-radio.liq.tmpl /etc/liquidsoap/ai-radio.liq
 RUN sed -i "s/{{ICECAST_PORT}}/$ICECAST_PORT/g" /etc/liquidsoap/ai-radio.liq
+RUN export ICECAST_PASSWORD=$(cat /etc/secrets/icecast_password); sed -i "s/{{ICECAST_PASSWORD}}/$ICECAST_PASSWORD/g" /etc/liquidsoap/ai-radio.liq
 RUN chmod u+x /etc/liquidsoap/ai-radio.liq
 RUN mkdir -p /etc/liquidsoap/
 RUN chown -R icecast:icecast /etc/liquidsoap/
