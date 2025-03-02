@@ -174,8 +174,8 @@ jobs:
             --secret "id=ICECAST_PASSWORD,env=ICECAST_PASSWORD" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
-  helm-verify:
-    name: "Helm verify"
+  helm-checks:
+    name: "Helm checks"
     runs-on: ubuntu-latest
 
     permissions:
@@ -220,9 +220,9 @@ jobs:
         run: |
           echo -e $K8S_CERT > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=${{ secrets.K8S_MASTER_ENDPOINT }} --kubeconfig=default.kubeconfig
-          kubectl config set-credentials admin-user --token=${{ secrets.K8S_SA_TOKEN }} --kubeconfig=default.kubeconfig
-          kubectl config --kubeconfig=default.kubeconfig set-context default --cluster=k8s-cluster --user=ai-radio-caster
-          kubectl config --kubeconfig=default.kubeconfig use-context default
+          kubectl config set-credentials ai-radio-caster --token=${{ secrets.K8S_SA_TOKEN }} --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=ai-radio-caster --kubeconfig=default.kubeconfig
+          kubectl config use-context default --kubeconfig=default.kubeconfig
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
