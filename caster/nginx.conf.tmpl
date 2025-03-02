@@ -22,8 +22,8 @@ http {
             return 200 '0;OK';
         }
 
-        location ~^/.* {
-            return 403;
+        location ~* !^/(ping|)$ {
+            deny all;
         }
     }
 }
