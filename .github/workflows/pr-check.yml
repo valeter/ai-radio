@@ -235,7 +235,8 @@ jobs:
             --user=ai-radio-caster \
             --kubeconfig=default.kubeconfig
           
-          kubectl config use-context default --kubeconfig=default.kubeconfig
+          kubectl config use-context default \
+            --kubeconfig=default.kubeconfig
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
