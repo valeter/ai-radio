@@ -11,6 +11,7 @@ env:
   KUBE_VERSION: "v1.30.1"
 
   K8S_CLUSTER_ID: ${{ secrets.K8S_CLUSTER_ID }}
+  K8S_CERT: ${{ secrets.K8S_CERT }}
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   TF_CLI_CONFIG_FILE: "config.tfrc"
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
@@ -217,8 +218,10 @@ jobs:
 
       - name: Configure kubectl
         run: |
+          echo -e $K8S_CERT > ca.pem
+          
           kubectl config set-cluster k8s-cluster \
-            "--certificate-authority=${{ secrets.K8S_CERT }}" \
+            --certificate-authority=ca.pem \
             --embed-certs \
             --server=${{ secrets.K8S_MASTER_ENDPOINT }} \
             --kubeconfig=default.kubeconfig
