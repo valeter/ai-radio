@@ -172,7 +172,7 @@ jobs:
           yc-sa-json-credentials: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
