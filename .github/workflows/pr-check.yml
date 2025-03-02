@@ -219,24 +219,10 @@ jobs:
       - name: Configure kubectl
         run: |
           echo -e $K8S_CERT > ca.pem
-          
-          kubectl config set-cluster k8s-cluster \
-            --certificate-authority=ca.pem \
-            --embed-certs \
-            --server=${{ secrets.K8S_MASTER_ENDPOINT }} \
-            --kubeconfig=default.kubeconfig
-          
-          kubectl config set-credentials admin-user \
-            --token=${{ secrets.K8S_SA_TOKEN }} \
-            --kubeconfig=default.kubeconfig
-          
-          kubectl config set-context default \
-            --cluster=k8s-cluster \
-            --user=ai-radio-caster \
-            --kubeconfig=default.kubeconfig
-          
-          kubectl config use-context default \
-            --kubeconfig=default.kubeconfig
+          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=${{ secrets.K8S_MASTER_ENDPOINT }} --kubeconfig=default.kubeconfig
+          kubectl config set-credentials admin-user --token=${{ secrets.K8S_SA_TOKEN }} --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=ai-radio-caster --kubeconfig=default.kubeconfig
+          kubectl config use-context default --kubeconfig=default.kubeconfig
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
