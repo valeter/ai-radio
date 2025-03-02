@@ -1,4 +1,4 @@
-name: Terraform validation
+name: PR checks
 
 on:  
   pull_request:
@@ -9,6 +9,8 @@ env:
   TF_VERSION: "1.10.5"
   HELM_VERSION: "v3.17.1"
   KUBE_VERSION: "v1.30.1"
+
+  K8S_CLUSTER_ID: ${{ secrets.K8S_CLUSTER_ID }}
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   TF_CLI_CONFIG_FILE: "config.tfrc"
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
@@ -187,6 +189,11 @@ jobs:
         with:
            version: ${{ env.HELM_VERSION }}
 
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+           version: ${{ env.KUBE_VERSION }}
+
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -208,9 +215,24 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
-      - name: Configure docker image name
+      - name: Configure kubectl
         run: |
-          echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output --raw caster_docker_repository)" >> $GITHUB_ENV
+          kubectl config set-cluster k8s-cluster \
+            "--certificate-authority=${{ secrets.K8S_CERT }}" \
+            --embed-certs \
+            --server=${{ secrets.K8S_MASTER_ENDPOINT }} \
+            --kubeconfig=default.kubeconfig
+          
+          kubectl config set-credentials admin-user \
+            --token=${{ secrets.K8S_SA_TOKEN }} \
+            --kubeconfig=default.kubeconfig
+          
+          kubectl config set-context default \
+            --cluster=k8s-cluster \
+            --user=ai-radio-caster \
+            --kubeconfig=default.kubeconfig
+          
+          kubectl config use-context default --kubeconfig=default.kubeconfig
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
@@ -229,7 +251,7 @@ jobs:
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          DRY_RUN: "helm\n${{ steps.helm-dry-run.outputs.stdout }}"
+          DRY_RUN: "helm\n${{ steps.helm-dry-run.outputs.stdout }}\n${{ steps.helm-dry-run.outputs.stderr }}"
         with:
           github-token: ${{ secrets.GH_TOKEN }}
           script: |
@@ -246,10 +268,11 @@ jobs:
             // 2. Prepare format of the comment
             const output = `#### Helm checks
             #### Helm Lint ⚙️\`${{ steps.helm-lint.outcome }}\`
-            <details><summary>Lint Output</summary>
+            <details><summary>Show output</summary>
 
             \`\`\`\n
             ${{ steps.helm-lint.outputs.stdout }}
+            ${{ steps.helm-lint.outputs.stderr }}
             \`\`\`
 
             </details>

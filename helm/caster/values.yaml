@@ -20,10 +20,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  create: false
-  automount: true
-  annotations: {}
-  name: ""
+  create: true
 
 podAnnotations: {}
 
@@ -43,6 +40,7 @@ service:
 # https://yandex.cloud/ru/docs/managed-kubernetes/tutorials/new-kubernetes-project#create-ingress
 # https://yandex.cloud/en/docs/application-load-balancer/k8s-ref/ingress
 ingress:
+  logGroupId: e2328eb1mrb5bsl0995r
   enabled: true
   className: ""
   annotations:
@@ -50,6 +48,7 @@ ingress:
     ingress.alb.yc.io/security-groups: enpb8hj4pkkkhrc8fo8b
     ingress.alb.yc.io/external-ipv4-address: 51.250.112.148
     ingress.alb.yc.io/group-name: ai-radio
+    ingress.alb.yc.io/group-settings-name: base-settings
 
   tls:
     - secretName: yc-certmgr-cert-id-fpqkt3jp8mdp76t4la45

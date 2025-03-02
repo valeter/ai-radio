@@ -3,6 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "caster.fullname" . }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "caster.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
