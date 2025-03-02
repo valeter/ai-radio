@@ -246,6 +246,7 @@ jobs:
             --kube-context default \
             --kube-as-user ai-radio-caster \
             --kubeconfig default.kubeconfig \
+            --kube-insecure-skip-tls-verify true \
             --kube-apiserver $K8S_ENDPOINT \
             --kube-token $K8S_TOKEN \
             --namespace ai-radio -i ai-radio-caster helm/caster/
