@@ -233,7 +233,6 @@ jobs:
           kubectl config set-credentials admin-user --token=$K8S_TOKEN --kubeconfig=default.kubeconfig
           kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
-          kubectl get namespace --kubeconfig=default.kubeconfig
           
           helm upgrade --dry-run \
             --kubeconfig default.kubeconfig \
@@ -244,7 +243,7 @@ jobs:
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          DRY_RUN: "helm\n${{ steps.helm-dry-run.outputs.stdout }}\n${{ steps.helm-dry-run.outputs.stderr }}"
+          DRY_RUN: "helm\n${{ steps.helm-dry-run.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GH_TOKEN }}
           script: |
@@ -261,24 +260,8 @@ jobs:
             // 2. Prepare format of the comment
             const output = `#### Helm checks
             #### Helm Lint ⚙️\`${{ steps.helm-lint.outcome }}\`
-            <details><summary>Show output</summary>
-
-            \`\`\`\n
-            ${{ steps.helm-lint.outputs.stdout }}
-            ${{ steps.helm-lint.outputs.stderr }}
-            \`\`\`
-
-            </details>
 
             #### Helm upgrade dry run 📖\`${{ steps.helm-dry-run.outcome }}\`
-
-            <details><summary>Show output</summary>
-
-            \`\`\`\n
-            ${process.env.DRY_RUN}
-            \`\`\`
-
-            </details>
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`helm\`, Workflow: \`${{ github.workflow }}\`*`;
 
