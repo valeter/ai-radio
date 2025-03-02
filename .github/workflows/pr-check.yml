@@ -213,19 +213,6 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
-      - name: Configure kubectl
-        env:
-          K8S_CERT: ${{ secrets.K8S_CERT }}
-          K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
-          K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
-        run: |
-          echo "$K8S_CERT" > ca.pem
-          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-credentials admin-user "--token=$K8S_TOKEN" --kubeconfig=default.kubeconfig
-          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
-          kubectl config use-context default --kubeconfig=default.kubeconfig
-          kubectl get namespace --kubeconfig=default.kubeconfig
-
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
 
@@ -235,19 +222,21 @@ jobs:
         continue-on-error: true
 
       - name: Helm Dry run
+        id: helm-dry-run
         env:
           K8S_CERT: ${{ secrets.K8S_CERT }}
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
           K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
-        id: helm-dry-run
         run: |
+          echo "$K8S_CERT" > ca.pem
+          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
+          kubectl config set-credentials admin-user --token=$K8S_TOKEN --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
+          kubectl config use-context default --kubeconfig=default.kubeconfig
+          kubectl get namespace --kubeconfig=default.kubeconfig
+          
           helm upgrade --dry-run \
-            --kube-context default \
-            --kube-as-user ai-radio-caster \
             --kubeconfig default.kubeconfig \
-            --kube-insecure-skip-tls-verify \
-            --kube-apiserver $K8S_ENDPOINT \
-            --kube-token $K8S_TOKEN \
             --namespace ai-radio -i ai-radio-caster helm/caster/
         continue-on-error: true
 
