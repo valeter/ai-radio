@@ -7,6 +7,8 @@ on:
 
 env:
   TF_VERSION: "1.10.5"
+  HELM_VERSION: "v3.17.1"
+  KUBE_VERSION: "v1.30.1"
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   TF_CLI_CONFIG_FILE: "config.tfrc"
   ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
@@ -128,9 +130,6 @@ jobs:
     name: "Docker build"
     runs-on: ubuntu-latest
 
-    permissions:
-      pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -171,3 +170,115 @@ jobs:
             --secret "id=AWS_SECRET_KEY_ID,env=AWS_SECRET_KEY_ID" \
             --secret "id=ICECAST_PASSWORD,env=ICECAST_PASSWORD" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
+
+  helm-verify:
+    name: "Helm verify"
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+           version: ${{ env.HELM_VERSION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: IAM Token
+        id: issue-iam-token
+        uses: yc-actions/yc-iam-token@v1
+        with:
+          yc-key-id: ${{ secrets.DOCKER_REGISTRY_KEY_ID }}
+          yc-service-account-id: ${{ secrets.DOCKER_REGISTRY_SA_ID }}
+          yc-private-key: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Configure docker image name
+        run: |
+          echo "DOCKER_CASTER_IMAGE=$(terraform -chdir=terraform/ output --raw caster_docker_repository)" >> $GITHUB_ENV
+
+      - name: Helm Init
+        run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
+
+      - name: Helm Lint
+        id: helm-lint
+        run: helm lint --namespace ai-radio helm/caster/
+        continue-on-error: true
+
+      - name: Helm Dry run
+        id: helm-dry-run
+        run: helm upgrade --dry-run --namespace ai-radio -i ai-radio-caster helm/caster/
+        continue-on-error: true
+
+      - name: Write Pr comment
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          DRY_RUN: "helm\n${{ steps.helm-dry-run.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.body.includes('Helm checks')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `#### Helm checks
+            #### Helm Lint ⚙️\`${{ steps.helm-lint.outcome }}\`
+            <details><summary>Lint Output</summary>
+
+            \`\`\`\n
+            ${{ steps.helm-lint.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Helm upgrade dry run 📖\`${{ steps.helm-dry-run.outcome }}\`
+
+            <details><summary>Show output</summary>
+
+            \`\`\`\n
+            ${process.env.DRY_RUN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`helm\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
