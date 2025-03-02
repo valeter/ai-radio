@@ -242,8 +242,6 @@ jobs:
       - name: Write Pr comment
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
-        env:
-          DRY_RUN: "helm\n${{ steps.helm-dry-run.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GH_TOKEN }}
           script: |
