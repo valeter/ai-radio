@@ -182,8 +182,7 @@ jobs:
         run: helm lint --namespace ai-radio helm/caster/
         continue-on-error: true
 
-      - name: Helm Dry run
-        id: helm-dry-run
+      - name: Helm upgrade
         env:
           K8S_CERT: ${{ secrets.K8S_CERT }}
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
