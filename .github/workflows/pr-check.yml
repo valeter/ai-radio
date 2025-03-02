@@ -173,6 +173,8 @@ jobs:
             -t $DOCKER_CASTER_IMAGE:latest ./caster
 
   validate-nginx:
+    name: "Validate nginx configs"
+
     runs-on: ubuntu-latest
 
     steps:
@@ -195,9 +197,9 @@ jobs:
 
     - name: Replace placeholder with actual value
       run: |
-        sed -i 's/{{NGINX_PORT}}/80/g' ./caster/nginx.conf.tmpl
-        sed -i 's/{{ICECAST_PORT}}/81/g' ./caster/nginx.conf.tmpl
+        sed -i 's/{{NGINX_PORT}}/80/g' caster/nginx.conf.tmpl
+        sed -i 's/{{ICECAST_PORT}}/81/g' caster/nginx.conf.tmpl
 
     - name: Validate Nginx configuration
       run: |
-        sudo nginx -t -c ./caster/nginx.conf.tmpl
+        sudo nginx -t -c caster/nginx.conf.tmpl
