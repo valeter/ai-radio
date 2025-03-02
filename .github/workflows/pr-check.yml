@@ -224,7 +224,7 @@ jobs:
           kubectl config set-credentials admin-user "--token=$K8S_TOKEN" --kubeconfig=default.kubeconfig
           kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
-          kubectl get namespace --kubeconfig=test.kubeconfig
+          kubectl get namespace --kubeconfig=default.kubeconfig
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
