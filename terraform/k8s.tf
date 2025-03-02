@@ -46,7 +46,7 @@ resource "yandex_kubernetes_node_group" "worker-nodes-d" {
   }
   scale_policy {
     fixed_scale {
-      size = 1
+      size = 3
     }
   }
   allocation_policy {
@@ -59,7 +59,7 @@ resource "yandex_kubernetes_node_group" "worker-nodes-d" {
     resources {
       core_fraction = 100
       cores         = 2
-      memory        = 2
+      memory        = 4
     }
     network_interface {
       nat                = true

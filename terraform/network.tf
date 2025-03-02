@@ -113,6 +113,25 @@ resource "yandex_vpc_security_group" "k8s-sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
+  egress {
+    description    = "Для трафика между мастером и подами metric-server"
+    protocol       = "TCP"
+    port = 4443
+    v4_cidr_blocks = ["10.96.0.0/16"]
+  }
+
+  egress {
+    description    = "Communication inside this SG"
+    protocol       = "ANY"
+    predefined_target = "self_security_group"
+  }
+
+  ingress {
+    protocol          = "ANY"
+    description       = "Communication inside this SG"
+    predefined_target = "self_security_group"
+  }
+
   ingress {
     description    = "Для доступа к API Kubernetes и управления кластером"
     protocol       = "TCP"
@@ -120,9 +139,15 @@ resource "yandex_vpc_security_group" "k8s-sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description    = "Для доступа к API Kubernetes и управления кластером"
+    description    = "Для доступа к API Kubernetes и управления кластером https"
     protocol       = "TCP"
     port           = 443
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description    = "Для доступа к API Kubernetes и управления кластером http"
+    protocol       = "TCP"
+    port           = 80
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
@@ -140,6 +165,13 @@ resource "yandex_vpc_security_group" "k8s-sg" {
     v4_cidr_blocks = ["10.112.0.0/16", "10.96.0.0/16"]
   }
   ingress {
+    description    = "Для проверки работоспособности узлов из подсетей внутри Yandex Cloud"
+    protocol       = "ICMP"
+    from_port      = 0
+    to_port        = 65535
+    v4_cidr_blocks = ["10.0.0.0/8","192.168.0.0/16","172.16.0.0/12"]
+  }
+  ingress {
     description    = "Для подключения к узлам по протоколу SSH"
     protocol       = "TCP"
     port           = 22
@@ -151,6 +183,18 @@ resource "yandex_vpc_security_group" "k8s-sg" {
     from_port         = 0
     to_port           = 65535
     predefined_target = "loadbalancer_healthchecks"
+  }
+  ingress {
+    protocol          = "TCP"
+    description       = "healthchecks"
+    predefined_target = "loadbalancer_healthchecks"
+    port              = 30080
+  }
+  ingress {
+    description    = "Проверка состояние бэкендов"
+    protocol       = "TCP"
+    port           = 10501
+    v4_cidr_blocks = ["10.128.0.0/24", "10.129.0.0/24", "10.130.0.0/24"]
   }
 }
 

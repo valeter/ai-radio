@@ -15,6 +15,29 @@ resource "yandex_dns_recordset" "ai-radio-validation-record" {
   ttl     = 10
 }
 
+resource "yandex_cm_certificate" "stream-ai-radio-cert" {
+  folder_id = local.network_folder_id
+  name      = "stream-ai-radio-cert"
+  domains   = ["stream.ai-radio.ru"]
+  managed {
+    challenge_type = "DNS_TXT"
+  }
+}
+
+resource "yandex_dns_recordset" "stream-ai-radio-validation-record" {
+  zone_id = yandex_dns_zone.ai-radio-zone.id
+  name    = yandex_cm_certificate.stream-ai-radio-cert.challenges[0].dns_name
+  type    = yandex_cm_certificate.stream-ai-radio-cert.challenges[0].dns_type
+  data    = [yandex_cm_certificate.stream-ai-radio-cert.challenges[0].dns_value]
+  ttl     = 10
+}
+
+data "yandex_cm_certificate" "stream-ai-radio-cert" {
+  depends_on      = [yandex_dns_recordset.stream-ai-radio-validation-record]
+  certificate_id  = yandex_cm_certificate.stream-ai-radio-cert.id
+  wait_validation = true
+}
+
 data "yandex_cm_certificate" "ai-radio-cert" {
   depends_on      = [yandex_dns_recordset.ai-radio-validation-record]
   certificate_id  = yandex_cm_certificate.ai-radio-cert.id

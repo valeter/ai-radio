@@ -1,0 +1,98 @@
+# Default values for caster.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: ai-radio
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 2
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: cr.yandex/crp8rkrr8btel4schut6/ai-radio-caster
+  pullPolicy: Always
+  tag: "latest"
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext:
+  privileged: true # for s3fs
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  type: NodePort
+  targetPort: 32745 # nginx port from caster container
+  externalPort: 443 # for documentation only
+
+# https://yandex.cloud/ru/docs/managed-kubernetes/tutorials/new-kubernetes-project#create-ingress
+# https://yandex.cloud/en/docs/application-load-balancer/k8s-ref/ingress
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    ingress.alb.yc.io/subnets: fl85607db4b5o699f5lj
+    ingress.alb.yc.io/security-groups: enpb8hj4pkkkhrc8fo8b
+    ingress.alb.yc.io/external-ipv4-address: 51.250.112.148
+    ingress.alb.yc.io/group-name: ai-radio
+
+  tls:
+    - secretName: yc-certmgr-cert-id-fpqkt3jp8mdp76t4la45
+      hosts:
+        - stream.ai-radio.ru
+
+  hosts:
+    - host: stream.ai-radio.ru
+      paths:
+        - path: /
+          pathType: Exact
+          backend: ai-radio-caster-backend
+
+  defaultBackend:
+
+
+resources: {}
+
+# nginx port and endpoint from caster container
+livenessProbe:
+  httpGet:
+    path: /ping
+    port: 32745
+readinessProbe:
+  httpGet:
+    path: /ping
+    port: 32745
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
