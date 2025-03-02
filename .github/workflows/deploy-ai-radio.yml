@@ -19,8 +19,6 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_STATIC_SECRET_KEY }}
   AWS_SECRET_KEY_ID: ${{ secrets.AWS_STATIC_SECRET_KEY }}
   AWS_DEFAULT_REGION: "ru-central1"
-  AI_RADIO_CERT_CHAIN: ${{ secrets.AI_RADIO_CERT_CHAIN }}
-  AI_RADIO_CERT_KEY: ${{ secrets.AI_RADIO_CERT_KEY }}
   ICECAST_PASSWORD: ${{ secrets.ICECAST_PASSWORD }}
 
   TF_VAR_organization_id: ${{ secrets.TF_VAR_organization_id }}
