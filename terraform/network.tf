@@ -116,13 +116,13 @@ resource "yandex_vpc_security_group" "k8s-sg" {
   egress {
     description    = "Для трафика между мастером и подами metric-server"
     protocol       = "TCP"
-    port = 4443
+    port           = 4443
     v4_cidr_blocks = ["10.96.0.0/16"]
   }
 
   egress {
-    description    = "Communication inside this SG"
-    protocol       = "ANY"
+    description       = "Communication inside this SG"
+    protocol          = "ANY"
     predefined_target = "self_security_group"
   }
 
@@ -169,7 +169,7 @@ resource "yandex_vpc_security_group" "k8s-sg" {
     protocol       = "ICMP"
     from_port      = 0
     to_port        = 65535
-    v4_cidr_blocks = ["10.0.0.0/8","192.168.0.0/16","172.16.0.0/12"]
+    v4_cidr_blocks = ["10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
   }
   ingress {
     description    = "Для подключения к узлам по протоколу SSH"
