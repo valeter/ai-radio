@@ -38,6 +38,8 @@ terraform-vars.sh
 .terraform.lock.hcl
 terraform.tfstate
 
+helm.sh
+
 certs/
 ai-radio-chain.crt
 ai-radio-chain.key
