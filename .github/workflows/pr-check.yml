@@ -209,9 +209,7 @@ jobs:
         id: issue-iam-token
         uses: yc-actions/yc-iam-token@v1
         with:
-          yc-key-id: ${{ secrets.DOCKER_REGISTRY_KEY_ID }}
-          yc-service-account-id: ${{ secrets.DOCKER_REGISTRY_SA_ID }}
-          yc-private-key: ${{ secrets.DOCKER_REGISTRY_PRIVATE_KEY }}
+          yc-sa-json-credentials: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
 
       - name: Terraform Init
         run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
@@ -234,7 +232,7 @@ jobs:
 
       - name: Helm Dry run
         id: helm-dry-run
-        run: helm upgrade --dry-run --namespace ai-radio -i ai-radio-caster helm/caster/
+        run: helm upgrade --dry-run --kube-context default --kube-as-user ai-radio-caster --kubeconfig default.kubeconfig --namespace ai-radio -i ai-radio-caster helm/caster/
         continue-on-error: true
 
       - name: Write Pr comment
