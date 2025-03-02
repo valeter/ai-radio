@@ -202,4 +202,4 @@ jobs:
 
     - name: Validate Nginx configuration
       run: |
-        sudo nginx -t -c caster/nginx.conf.tmpl
+        sudo nginx -t -c ${{ github.workspace }}/caster/nginx.conf.tmpl
