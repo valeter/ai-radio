@@ -219,11 +219,12 @@ jobs:
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
           K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
         run: |
-          echo $K8S_CERT > ca.pem
+          echo "$K8S_CERT" > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-credentials ai-radio-caster "--token=$K8S_TOKEN" --kubeconfig=default.kubeconfig
-          kubectl config set-context default --cluster=k8s-cluster --user=ai-radio-caster --kubeconfig=default.kubeconfig
+          kubectl config set-credentials admin-user "--token=$K8S_TOKEN" --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
+          kubectl get namespace --kubeconfig=test.kubeconfig
 
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
