@@ -7,6 +7,9 @@ on:
 
 env:
   TF_VERSION: "1.10.5"
+  HELM_VERSION: "v3.17.1"
+  KUBE_VERSION: "v1.30.1"
+
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
   TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
   AWS_TF_ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
@@ -129,3 +132,70 @@ jobs:
         run: |
           docker push $DOCKER_CASTER_IMAGE:latest
           docker push $DOCKER_CASTER_IMAGE:${{ github.sha }}
+
+  deploy-helm:
+    needs: deploy-docker
+    name: "Deploy helm"
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+           version: ${{ env.HELM_VERSION }}
+
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+           version: ${{ env.KUBE_VERSION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: IAM Token
+        id: issue-iam-token
+        uses: yc-actions/yc-iam-token@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Helm Init
+        run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
+
+      - name: Helm Lint
+        id: helm-lint
+        run: helm lint --namespace ai-radio helm/caster/
+        continue-on-error: true
+
+      - name: Helm Dry run
+        id: helm-dry-run
+        env:
+          K8S_CERT: ${{ secrets.K8S_CERT }}
+          K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
+          K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
+        run: |
+          echo "$K8S_CERT" > ca.pem
+          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
+          kubectl config set-credentials admin-user --token=$K8S_TOKEN --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
+          kubectl config use-context default --kubeconfig=default.kubeconfig
+          
+          helm upgrade \
+            --kubeconfig default.kubeconfig \
+            --namespace ai-radio -i ai-radio-caster helm/caster/
+        continue-on-error: true
