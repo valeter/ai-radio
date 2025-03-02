@@ -240,9 +240,7 @@ jobs:
           K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
         id: helm-dry-run
         run: |
-          echo $K8S_CERT > ca.pem
           helm upgrade --dry-run \
-            --kube-ca-file ca.pem \
             --kube-context default \
             --kube-as-user ai-radio-caster \
             --kubeconfig default.kubeconfig \
