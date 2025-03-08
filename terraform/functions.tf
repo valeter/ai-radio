@@ -6,7 +6,7 @@ resource "yandex_function" "speech-generator" {
   description        = "listens to mq message for tts generation, stores result to object storage"
   user_hash          = var.speech_generator_version
   runtime            = "golang121"
-  entrypoint         = "HandleRequest"
+  entrypoint         = "server.HandleRequest"
   memory             = "128"
   execution_timeout  = "60"
   service_account_id = yandex_iam_service_account.func-sa.id

@@ -11,7 +11,6 @@ import (
 	"github.com/valeter/ai-radio/apps/go/common/model"
 	"google.golang.org/protobuf/proto"
 	"io"
-	"log"
 	"os"
 	"strings"
 	"unicode/utf8"
@@ -34,28 +33,28 @@ func HandleRequest(ctx context.Context, reqbody []byte) (string, error) {
 	req := model.MqRequest{}
 	err := json.Unmarshal(reqbody, &req)
 	if err != nil {
-		log.Printf("Ошибка при парсинге сообщения %v: %s\n", string(reqbody), err)
+		fmt.Printf("Ошибка при парсинге сообщения %v: %s\n", string(reqbody), err)
 		return "", err
 	}
 
-	log.Printf("Получено %v сообщений\n", len(req.Messages))
+	fmt.Printf("Получено %v сообщений\n", len(req.Messages))
 
 	for _, message := range req.Messages {
 		err = processMessage(message.Details.Message)
 		if err != nil {
-			log.Printf("Ошибка при обработке сообщения %v: %s\n", message.Details.Message.MessageId, err)
+			fmt.Printf("Ошибка при обработке сообщения %v: %s\n", message.Details.Message.MessageId, err)
 			continue
 		}
 
-		log.Printf("Сообщение успешно обработано %v\n", message.Details.Message.MessageId)
+		fmt.Printf("Сообщение успешно обработано %v\n", message.Details.Message.MessageId)
 	}
 
-	log.Printf("Сообщения обработаны\n")
+	fmt.Printf("Сообщения обработаны\n")
 	return "Сообщения обработаны", nil
 }
 
 func processMessage(message *model.MqMessage) error {
-	log.Printf("Тело сообщения: %s\n", message.Body)
+	fmt.Printf("Тело сообщения: %s\n", message.Body)
 
 	msg := pb.VoiceGenerationRequest{}
 	bodyBytes, err := hex.DecodeString(message.Body)
@@ -64,7 +63,7 @@ func processMessage(message *model.MqMessage) error {
 	}
 	err = proto.Unmarshal(bodyBytes, &msg)
 	if err != nil {
-		log.Printf("Ошибка формата сообщения %s. Сообщение не будет отбработано вторично\n", err)
+		fmt.Printf("Ошибка формата сообщения %s. Сообщение не будет отбработано вторично\n", err)
 		return nil
 	}
 
@@ -73,12 +72,12 @@ func processMessage(message *model.MqMessage) error {
 	case pb.FileType_MP3:
 		audioType = pbyc.ContainerAudio_MP3
 	default:
-		log.Printf("Неподдерживаемый формат файла %v. Сообщение не будет отбработано вторично\n", msg.ResultFileType)
+		fmt.Printf("Неподдерживаемый формат файла %v. Сообщение не будет отбработано вторично\n", msg.ResultFileType)
 		return nil
 	}
 
 	if utf8.RuneCountInString(msg.Text) > maxMsgTextLen {
-		log.Printf("Слишком длинный текст %v. Сообщение не будет отбработано вторично\n", utf8.RuneCountInString(msg.Text))
+		fmt.Printf("Слишком длинный текст %v. Сообщение не будет отбработано вторично\n", utf8.RuneCountInString(msg.Text))
 		return nil
 	}
 
@@ -104,7 +103,7 @@ func processMessage(message *model.MqMessage) error {
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
 		if err != nil {
-			log.Printf("Ошибка при закрытии подключения к tts %s\n", err)
+			fmt.Printf("Ошибка при закрытии подключения к tts %s\n", err)
 		}
 	}(conn)
 	client := pbyc.NewSynthesizerClient(conn)
@@ -167,7 +166,7 @@ func processMessage(message *model.MqMessage) error {
 		if err2 != nil {
 			return err2
 		}
-		log.Printf("Аудио успешно сохранено в S3: %s\n", fileName)
+		fmt.Printf("Аудио успешно сохранено в S3: %s\n", fileName)
 		nextFileNumber++
 	}
 	return nil
