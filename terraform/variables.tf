@@ -19,6 +19,6 @@ variable "operations" {
 }
 
 variable "speech_generator_version" {
-  type = string
+  type    = string
   default = null
 }
