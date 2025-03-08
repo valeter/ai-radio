@@ -35,8 +35,8 @@ resource "yandex_function" "speech-generator" {
     service_account_id = yandex_iam_service_account.func-sa.id
   }
   log_options {
+    folder_id    = local.logging_folder_id
     log_group_id = yandex_logging_group.speech-generator-log.id
-    min_level    = "UNSPECIFIED"
   }
   concurrency = 1
 }
