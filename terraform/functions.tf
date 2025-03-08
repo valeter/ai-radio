@@ -9,7 +9,7 @@ resource "yandex_function" "speech-generator" {
   entrypoint         = "HandleRequest"
   memory             = "128"
   execution_timeout  = "60"
-  service_account_id = var.service_account_id
+  service_account_id = yandex_iam_service_account.func-sa.id
   environment = {
     "FOLDER_ID" = local.functions_folder_id
     "QUEUE_URL" = data.yandex_message_queue.ai-radio-voice-gen.url
