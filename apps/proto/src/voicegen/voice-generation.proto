@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package = "github.com/valeter/ai-radio/apps/proto/generated/go/voicegen";
+
+enum FileType {
+  MP3 = 0;
+}
+
+enum Voice {
+  ALENA = 0;
+  FILIPP = 1;
+  ERMIL = 2;
+  JANE = 3;
+  MADI_RU = 4;    // соответствует "madi_ru" в Go
+  SAULE_RU = 5;   // соответствует "saule_ru" в Go
+  OMAZH = 6;
+  ZAHAR = 7;
+  DASHA = 8;
+  JULIA = 9;
+  LERA = 10;
+  MASHA = 11;
+  MARINA = 12;
+  ALEXANDER = 13;
+  KIRILL = 14;
+  ANTON = 15;
+}
+
+enum Role {
+  NEUTRAL = 0;
+  STRICT = 1;
+  GOOD = 2;
+  EVIL = 3;
+  FRIENDLY = 4;
+  WHISPER = 5;
+}
+
+message VoiceGenerationRequest {
+  string text = 1;
+  FileType result_file_type = 2;
+  int32 speed = 3; // 0 to 20, translates to 0.0 to 2.0 in tts request
+  Voice tts_voice = 4;
+  Role tts_role = 5;
+  string s3_bucket = 6;
+  string s3_folder = 7;
+  string s3_unique_key = 8;
+}

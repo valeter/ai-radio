@@ -44,7 +44,9 @@ certs/
 ai-radio-chain.crt
 ai-radio-chain.key
 
-speech-generator/cli-client/cli-client
-speech-generator/server/server
-speech-generator/server/proto
-speech-generator/server/generated
+apps/go/speech-generator/server
+apps/go/speech-generator/cli-client/cli-client
+apps/go/speech-generator/generated
+apps/proto/generated
+apps/proto/cloudapi
+apps/proto/googleapis

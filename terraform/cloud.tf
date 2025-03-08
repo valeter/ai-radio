@@ -44,3 +44,9 @@ resource "yandex_resourcemanager_folder" "registry" {
   name       = "registry"
   depends_on = [yandex_billing_cloud_binding.ai-radio-prod-billing]
 }
+
+resource "yandex_resourcemanager_folder" "functions" {
+  cloud_id   = yandex_resourcemanager_cloud.ai-radio.id
+  name       = "functions"
+  depends_on = [yandex_billing_cloud_binding.ai-radio-prod-billing]
+}

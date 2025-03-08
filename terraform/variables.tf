@@ -17,3 +17,8 @@ variable "developers" {
 variable "operations" {
   type = list(string)
 }
+
+variable "speech_generator_version" {
+  type = string
+  default = null
+}
