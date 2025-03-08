@@ -45,6 +45,7 @@ ai-radio-chain.crt
 ai-radio-chain.key
 
 apps/go/speech-generator/server
+apps/go/speech-generator/speech-generator
 apps/go/speech-generator/cli-client/cli-client
 apps/go/speech-generator/generated
 apps/proto/generated

@@ -1,6 +1,6 @@
 module github.com/valeter/ai-radio/speech-generator/cli-client
 
-go 1.22.2
+go 1.21.9
 
 replace github.com/valeter/ai-radio/apps/go/common/model => ./../../common/model
 
@@ -10,6 +10,9 @@ require (
 	google.golang.org/protobuf v1.36.5
 )
 
-require github.com/jmespath/go-jmespath v0.4.0 // indirect
+require (
+	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+)
 
 replace github.com/valeter/ai-radio/apps/go/speech-generator => ../

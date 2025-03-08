@@ -16,7 +16,7 @@ import (
 func main() {
 	if len(os.Args) != 3 {
 		fmt.Println("usage: cli-client [sqs url] [json message]")
-		fmt.Println("example: ./cli-client $SQS_URL '{\"text\":\"привет\",\"resultFileType\":\"MP3\",\"speed\":12,\"ttsVoice\":\"anton\",\"ttsRole\":\"neutral\",\"S3Bucket\":\"<my_bucket>\",\"S3Folder\":\"<my_folder>\",\"S3UniqueKey\":\"<my_key>\"}'")
+		fmt.Println("example: ./cli-client $SQS_URL '{\"text\":\"привет\",\"result_file_type\":\"MP3\", \"speed\":12, \"tts_voice\":\"ANTON\", \"tts_role\": \"NEUTRAL\", \"s3_bucket\":\"ai-radio-music\", \"s3_folder\":\"test/1\", \"s3_unique_key\": \"hi\"}'")
 		return
 	}
 
@@ -44,7 +44,7 @@ func main() {
 		fmt.Println("can't marshal to proto:", err)
 		return
 	}
-	var dst []byte
+	dst := make([]byte, hex.EncodedLen(len(src)))
 	hex.Encode(dst, src)
 	msg := string(dst)
 	fmt.Printf("sending message: %v\n", msg)

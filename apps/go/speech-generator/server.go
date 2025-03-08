@@ -20,8 +20,8 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 
-	pb "github.com/valeter/ai-radio/apps/go/speech-generator/server/generated/voicegen"
-	pbyc "github.com/valeter/ai-radio/apps/go/speech-generator/server/generated/yandex/cloud/ai/tts/v3"
+	pb "github.com/valeter/ai-radio/apps/go/speech-generator/generated/voicegen"
+	pbyc "github.com/valeter/ai-radio/apps/go/speech-generator/generated/yandex/cloud/ai/tts/v3"
 )
 
 const (
