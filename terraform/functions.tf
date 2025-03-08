@@ -31,7 +31,7 @@ resource "yandex_function" "speech-generator" {
     object_name = var.speech_generator_version
   }
   async_invocation {
-    retries_count       = "2"
+    retries_count      = "2"
     service_account_id = yandex_iam_service_account.func-sa.id
   }
   log_options {
