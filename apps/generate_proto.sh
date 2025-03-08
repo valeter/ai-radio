@@ -1,5 +1,4 @@
 rm -rf proto/generated
-
 mkdir -p proto/generated/go
 
 if [ ! -d "proto/googleapis" ]; then
