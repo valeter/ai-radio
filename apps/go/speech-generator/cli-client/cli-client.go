@@ -1,16 +1,15 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
+	"encoding/hex"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
-	"github.com/valeter/ai-radio/speech-generator/model"
+	pb "github.com/valeter/ai-radio/apps/go/speech-generator/generated/voicegen"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"os"
-	"reflect"
 )
 
 // env variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY should be set
@@ -33,19 +32,21 @@ func main() {
 	svc := sqs.New(sess)
 
 	str := os.Args[2]
-	msgO := model.VoiceGenerationRequest{}
-	err = StrictUnmarshal([]byte(str), &msgO)
+	msgO := pb.VoiceGenerationRequest{}
+	err = protojson.Unmarshal([]byte(str), &msgO)
 	if err != nil {
 		fmt.Println("bad json input:", err)
 		return
 	}
 
-	msgB, err := json.Marshal(&msgO)
+	src, err := proto.Marshal(&msgO)
 	if err != nil {
-		fmt.Println("can't build message:", err)
+		fmt.Println("can't marshal to proto:", err)
 		return
 	}
-	msg := string(msgB)
+	var dst []byte
+	hex.Encode(dst, src)
+	msg := string(dst)
 	fmt.Printf("sending message: %v\n", msg)
 
 	sendParams := &sqs.SendMessageInput{
@@ -63,21 +64,4 @@ func main() {
 
 	// Выводим ID отправленного сообщения
 	fmt.Println("message sucessfully sent, message_id:", *sendResp.MessageId)
-}
-
-func StrictUnmarshal(data []byte, v *model.VoiceGenerationRequest) error {
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	err := dec.Decode(v)
-	if err != nil {
-		return err
-	}
-	fields := reflect.ValueOf(v).Elem()
-	for i := 0; i < fields.NumField(); i++ {
-		if fields.Field(i).IsZero() {
-			return errors.New(fmt.Sprintf("required field is missing: %v", fields.Type().Field(i).Name))
-		}
-
-	}
-	return nil
 }

@@ -159,3 +159,22 @@ resource "yandex_iam_service_account_api_key" "tts-sa-api-key" {
     secret_id            = yandex_lockbox_secret.tts.id
   }
 }
+
+// serverless function invoker
+resource "yandex_iam_service_account" "func-sa" {
+  folder_id   = local.sa_folder_id
+  name        = "func-sa"
+  description = "serverless function invoker service account for ai-radio.ru"
+}
+
+resource "yandex_resourcemanager_cloud_iam_member" "func-sa-functionInvoker" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "functions.functionInvoker"
+  member   = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
+}
+
+resource "yandex_resourcemanager_cloud_iam_member" "func-sa-lockbox-payloadViewer" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "lockbox.payloadViewer"
+  member   = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
+}

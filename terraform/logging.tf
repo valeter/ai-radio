@@ -12,3 +12,8 @@ resource "yandex_logging_group" "k8s-alb-log" {
   name      = "k8s-alb-log"
   folder_id = local.logging_folder_id
 }
+
+resource "yandex_logging_group" "speech-generator-log" {
+  name      = "speech-generator-log"
+  folder_id = local.logging_folder_id
+}

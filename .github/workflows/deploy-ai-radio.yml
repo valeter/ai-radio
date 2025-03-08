@@ -198,3 +198,71 @@ jobs:
             --kubeconfig default.kubeconfig \
             --namespace ai-radio -i ai-radio-caster helm/caster/
         continue-on-error: true
+
+  deploy-speech-generator:
+    needs: terraform
+
+    name: "Deploy speech generator"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install protoc
+        run: |
+          sudo apt-get update && sudo apt-get install -y protobuf-compiler
+          protoc --version
+
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+      - name: Generate protobuf code
+        working-directory: ./apps
+        run: |
+          ./generate_proto.sh
+
+      - name: Verify generated files
+        run: |
+          git diff --exit-code
+          if [ $? -ne 0 ]; then
+            echo "Generated protobuf files are not up to date!"
+            exit 1
+          fi
+
+      - name: Zip speech-generator
+        working-directory: ./apps/go
+        run: |
+          zip -r speech-generator-${{ github.sha }}.zip speech-generator/
+
+      - name: Upload new version of speech-generator to s3
+        working-directory: ./apps/go
+        run: |
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 cp ./speech-generator-${{ github.sha }}.zip s3://ai-radio-functions
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform/ plan -out=tfplan \
+          -var 'speech_generator_version=speech-generator-${{ github.sha }}.zip'
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan \
+          -var 'speech_generator_version=speech-generator-${{ github.sha }}.zip'
