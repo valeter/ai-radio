@@ -11,7 +11,7 @@ resource "yandex_function" "speech-generator" {
   execution_timeout  = "60"
   service_account_id = yandex_iam_service_account.func-sa.id
   environment = {
-    "FOLDER_ID" = local.functions_folder_id
+    "FOLDER_ID" = local.sa_folder_id
   }
   secrets {
     id                   = yandex_lockbox_secret.aws.id

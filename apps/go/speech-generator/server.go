@@ -124,7 +124,7 @@ func processMessage(message *model.MqMessage) error {
 	ttsCtx := metadata.NewOutgoingContext(context.Background(),
 		metadata.Pairs(
 			"Authorization", "Api-Key "+os.Getenv("TTS_IAM_API_KEY"),
-			"x-folder-id", os.Getenv("FOLDER_ID"),
+			"x-folder-id", os.Getenv("TTS_SA_FOLDER_ID"),
 		))
 	
 	response, err := client.UtteranceSynthesis(ttsCtx, &pbyc.UtteranceSynthesisRequest{
