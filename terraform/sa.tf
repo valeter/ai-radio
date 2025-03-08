@@ -178,3 +178,15 @@ resource "yandex_resourcemanager_cloud_iam_member" "func-sa-lockbox-payloadViewe
   role     = "lockbox.payloadViewer"
   member   = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
 }
+
+resource "yandex_resourcemanager_folder_iam_member" "func-sa-ymq-reader" {
+  folder_id = local.sa_folder_id
+  role      = "ymq.reader"
+  member    = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "func-sa-logging-writer" {
+  folder_id = local.logging_folder_id
+  role      = "logging.writer"
+  member    = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
+}
