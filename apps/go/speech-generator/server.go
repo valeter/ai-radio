@@ -43,7 +43,7 @@ func HandleRequest(ctx context.Context, reqbody []byte) (string, error) {
 		err = processMessage(message.Details.Message)
 		if err != nil {
 			fmt.Printf("Ошибка при обработке сообщения %v: %s\n", message.Details.Message.MessageId, err)
-			continue
+			return fmt.Sprintf("Сообщение не обработано %v\n", message.Details.Message.MessageId), err
 		}
 
 		fmt.Printf("Сообщение успешно обработано %v\n", message.Details.Message.MessageId)
@@ -59,7 +59,8 @@ func processMessage(message *model.MqMessage) error {
 	msg := pb.VoiceGenerationRequest{}
 	bodyBytes, err := hex.DecodeString(message.Body)
 	if err != nil {
-		return err
+		fmt.Printf("Ошибка hex формата сообщения %s. Сообщение не будет отбработано вторично\n", err)
+		return nil
 	}
 	err = proto.Unmarshal(bodyBytes, &msg)
 	if err != nil {
@@ -81,6 +82,17 @@ func processMessage(message *model.MqMessage) error {
 		return nil
 	}
 
+	voice, err := voiceToString(msg.TtsVoice)
+	if err != nil {
+		fmt.Printf("Неподдерживаемый голос %v. Сообщение не будет отбработано вторично\n", msg.TtsVoice)
+		return nil
+	}
+	role, err := roleToString(msg.TtsRole)
+	if err != nil {
+		fmt.Printf("Неподдерживаемая роль %v. Сообщение не будет отбработано вторично\n", msg.TtsRole)
+		return nil
+	}
+
 	sess := session.Must(session.NewSession(&aws.Config{
 		Endpoint: aws.String("https://storage.yandexcloud.net/"),
 		Region:   aws.String(s3Region),
@@ -92,12 +104,14 @@ func processMessage(message *model.MqMessage) error {
 	}
 	_, err = s3Client.ListObjectsV2(listParams)
 	if err != nil {
+		fmt.Printf("Ошибка при подключении к object storage\n")
 		return err
 	}
 
 	conn, err := grpc.NewClient("tts.api.cloud.yandex.net:443",
 		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 	if err != nil {
+		fmt.Printf("Ошибка при подключении к tts\n")
 		return err
 	}
 	defer func(conn *grpc.ClientConn) {
@@ -112,14 +126,7 @@ func processMessage(message *model.MqMessage) error {
 			"Authorization", "Api-Key "+os.Getenv("TTS_IAM_API_KEY"),
 			"x-folder-id", os.Getenv("FOLDER_ID"),
 		))
-	voice, err := voiceToString(msg.TtsVoice)
-	if err != nil {
-		return err
-	}
-	role, err := roleToString(msg.TtsRole)
-	if err != nil {
-		return err
-	}
+	
 	response, err := client.UtteranceSynthesis(ttsCtx, &pbyc.UtteranceSynthesisRequest{
 		Utterance: &pbyc.UtteranceSynthesisRequest_Text{Text: msg.Text},
 		Hints: []*pbyc.Hints{
@@ -142,6 +149,7 @@ func processMessage(message *model.MqMessage) error {
 		UnsafeMode:                true,
 	})
 	if err != nil {
+		fmt.Printf("Ошибка при синтезе tts\n")
 		return err
 	}
 
@@ -164,9 +172,10 @@ func processMessage(message *model.MqMessage) error {
 		fileName := fmt.Sprintf("%s%d.mp3", prefix, nextFileNumber)
 		err2 = saveToS3(s3Client, audioData.AudioChunk.Data, msg.S3Bucket, fileName)
 		if err2 != nil {
+			fmt.Printf("Ошибка при сохранении в object storage: %s\n", fileName)
 			return err2
 		}
-		fmt.Printf("Аудио успешно сохранено в S3: %s\n", fileName)
+		fmt.Printf("Аудио успешно сохранено в object storage: %s\n", fileName)
 		nextFileNumber++
 	}
 	return nil

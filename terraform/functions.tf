@@ -12,7 +12,6 @@ resource "yandex_function" "speech-generator" {
   service_account_id = yandex_iam_service_account.func-sa.id
   environment = {
     "FOLDER_ID" = local.functions_folder_id
-    "QUEUE_URL" = data.yandex_message_queue.ai-radio-voice-gen.url
   }
   secrets {
     id                   = yandex_lockbox_secret.aws.id
@@ -25,6 +24,12 @@ resource "yandex_function" "speech-generator" {
     version_id           = data.yandex_lockbox_secret_version.aws-sa-static-key-version.id
     key                  = "key"
     environment_variable = "AWS_SECRET_ACCESS_KEY"
+  }
+  secrets {
+    id                   = yandex_lockbox_secret.tts.id
+    version_id           = data.yandex_lockbox_secret_version.tts-sa-static-key-version.id
+    key                  = "key"
+    environment_variable = "TTS_IAM_API_KEY"
   }
   package {
     bucket_name = yandex_storage_bucket.ai-radio-functions-bucket.bucket
@@ -54,7 +59,7 @@ resource "yandex_function_trigger" "speech-generator-mq-trigger" {
   message_queue {
     queue_id           = data.yandex_message_queue.ai-radio-voice-gen.arn
     service_account_id = yandex_iam_service_account.func-sa.id
-    batch_size         = 10
+    batch_size         = 1
     batch_cutoff       = 5
   }
 }
