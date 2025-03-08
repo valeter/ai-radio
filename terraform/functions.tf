@@ -53,7 +53,7 @@ resource "yandex_function_trigger" "speech-generator-mq-trigger" {
   }
 
   message_queue {
-    queue_id           = yandex_message_queue.ai-radio-voice-gen.id
+    queue_id           = data.yandex_message_queue.ai-radio-voice-gen.arn
     service_account_id = yandex_iam_service_account.func-sa.id
     batch_size         = 10
     batch_cutoff       = 5
