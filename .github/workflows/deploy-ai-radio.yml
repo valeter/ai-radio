@@ -271,4 +271,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
-        run: terraform -chdir=terraform/ apply -auto-approve tfplan -var="speech_generator_version=speech-generator-${{ github.sha }}.zip"
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan
