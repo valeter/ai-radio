@@ -36,7 +36,7 @@ resource "yandex_function" "speech-generator" {
   }
   log_options {
     log_group_id = yandex_logging_group.speech-generator-log.id
-    min_level    = "DEBUG"
+    min_level    = "UNSPECIFIED"
   }
   concurrency = 1
 }
