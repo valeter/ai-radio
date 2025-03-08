@@ -21,5 +21,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-replace github.com/valeter/ai-radio/apps/proto/generated/go/voicegen => ../../proto/generated/go/voicegen
