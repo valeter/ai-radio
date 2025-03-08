@@ -267,10 +267,8 @@ jobs:
         run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Terraform Plan
-        run: terraform -chdir=terraform/ plan -out=tfplan \
-          -var 'speech_generator_version=speech-generator-${{ github.sha }}.zip'
+        run: terraform -chdir=terraform/ plan -out=tfplan -var="speech_generator_version=speech-generator-${{ github.sha }}.zip"
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
-        run: terraform -chdir=terraform/ apply -auto-approve tfplan \
-          -var 'speech_generator_version=speech-generator-${{ github.sha }}.zip'
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan -var="speech_generator_version=speech-generator-${{ github.sha }}.zip"
