@@ -50,3 +50,9 @@ resource "yandex_resourcemanager_folder" "functions" {
   name       = "functions"
   depends_on = [yandex_billing_cloud_binding.ai-radio-prod-billing]
 }
+
+output "ai_radio_network_folder_id" {
+  description = "ai-radio network folder id"
+  value       = yandex_resourcemanager_folder.network.id
+  sensitive   = true
+}

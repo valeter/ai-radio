@@ -3,7 +3,7 @@ resource "yandex_kubernetes_cluster" "k8s-cluster" {
   name                     = "k8s-cluster"
   cluster_ipv4_range       = "10.112.0.0/16"
   service_ipv4_range       = "10.96.0.0/16"
-  node_ipv4_cidr_mask_size = 28
+  node_ipv4_cidr_mask_size = 24
   network_id               = yandex_vpc_network.default-network.id
   service_account_id       = yandex_iam_service_account.k8s-sa.id
   node_service_account_id  = yandex_iam_service_account.ai-radio-container-registry-sa.id
@@ -41,12 +41,12 @@ resource "yandex_kubernetes_node_group" "worker-nodes-d" {
 
   version = "1.30"
   deploy_policy {
-    max_expansion   = 3
-    max_unavailable = 0
+    max_expansion   = 1
+    max_unavailable = 1
   }
   scale_policy {
     fixed_scale {
-      size = 3
+      size = 1
     }
   }
   allocation_policy {
@@ -93,4 +93,10 @@ resource "yandex_kubernetes_node_group" "worker-nodes-d" {
       duration   = "5h"
     }
   }
+}
+
+output "k8s_cluster_id" {
+  description = "ai-radio k8s cluster id"
+  value       = yandex_kubernetes_cluster.k8s-cluster.id
+  sensitive   = true
 }

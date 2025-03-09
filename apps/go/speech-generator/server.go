@@ -59,12 +59,12 @@ func processMessage(message *model.MqMessage) error {
 	msg := pb.VoiceGenerationRequest{}
 	bodyBytes, err := hex.DecodeString(message.Body)
 	if err != nil {
-		fmt.Printf("Ошибка hex формата сообщения %s. Сообщение не будет отбработано вторично\n", err)
+		fmt.Printf("Ошибка hex формата сообщения %s. Сообщение не будет обработано вторично\n", err)
 		return nil
 	}
 	err = proto.Unmarshal(bodyBytes, &msg)
 	if err != nil {
-		fmt.Printf("Ошибка формата сообщения %s. Сообщение не будет отбработано вторично\n", err)
+		fmt.Printf("Ошибка формата сообщения %s. Сообщение не будет обработано вторично\n", err)
 		return nil
 	}
 
@@ -73,23 +73,23 @@ func processMessage(message *model.MqMessage) error {
 	case pb.FileType_MP3:
 		audioType = pbyc.ContainerAudio_MP3
 	default:
-		fmt.Printf("Неподдерживаемый формат файла %v. Сообщение не будет отбработано вторично\n", msg.ResultFileType)
+		fmt.Printf("Неподдерживаемый формат файла %v. Сообщение не будет обработано вторично\n", msg.ResultFileType)
 		return nil
 	}
 
 	if utf8.RuneCountInString(msg.Text) > maxMsgTextLen {
-		fmt.Printf("Слишком длинный текст %v. Сообщение не будет отбработано вторично\n", utf8.RuneCountInString(msg.Text))
+		fmt.Printf("Слишком длинный текст %v. Сообщение не будет обработано вторично\n", utf8.RuneCountInString(msg.Text))
 		return nil
 	}
 
 	voice, err := voiceToString(msg.TtsVoice)
 	if err != nil {
-		fmt.Printf("Неподдерживаемый голос %v. Сообщение не будет отбработано вторично\n", msg.TtsVoice)
+		fmt.Printf("Неподдерживаемый голос %v. Сообщение не будет обработано вторично\n", msg.TtsVoice)
 		return nil
 	}
 	role, err := roleToString(msg.TtsRole)
 	if err != nil {
-		fmt.Printf("Неподдерживаемая роль %v. Сообщение не будет отбработано вторично\n", msg.TtsRole)
+		fmt.Printf("Неподдерживаемая роль %v. Сообщение не будет обработано вторично\n", msg.TtsRole)
 		return nil
 	}
 
