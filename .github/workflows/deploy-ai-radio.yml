@@ -191,10 +191,12 @@ jobs:
         env:
           K8S_CERT: ${{ secrets.K8S_CERT }}
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
+          K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
         run: |
           echo "$K8S_CERT" > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-context default --cluster=k8s-cluster --kubeconfig=default.kubeconfig
+          kubectl config set-credentials admin-user --token=$K8S_TOKEN --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
 
           helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/yc-alb-ingress/yc-alb-ingress-controller-chart \
