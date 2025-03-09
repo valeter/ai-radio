@@ -1,12 +1,23 @@
 #!/usr/bin/liquidsoap
 
-# Log dir
+# Logging
 log.file.path.set("/var/log/liquidsoap/ai-radio.log")
 
 # If something goes wrong, we'll play this
 security = single("/music/example/white_noise.mp3")
 
-radio = playlist("/music/example/playlist.m3u")
+jingles = playlist("/music/playlists/jingles.m3u")
+
+news = playlist("/music/playlists/news.m3u")
+
+morning = playlist("/music/playlists/morning.m3u")
+day = playlist("/music/playlists/day.m3u")
+night = playlist("/music/playlists/night.m3u")
+
+radio = switch([({6h-11h}, morning), ({11h-18h}, day), ({18h-6h}, night)])
+radio = random(weights=[1, 5], [jingles, radio])
+radio = switch([({ 0m0s }, news), ({ true }, radio)])
+
 radio = fallback(track_sensitive=false, [radio, mksafe(security)])
 
 # Stream it out
