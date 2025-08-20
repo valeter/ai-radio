@@ -1,6 +1,6 @@
 resource "yandex_storage_bucket" "ai-radio-website-bucket" {
   folder_id  = local.storage_folder_id
-  yandex_storage_bucket_grant        = "public-read"
+  acl        = "public-read"
   bucket     = "ai-radio-website"
   access_key = sensitive(data.yandex_lockbox_secret_version.aws-sa-static-key-version.entries[1].text_value)
   secret_key = sensitive(data.yandex_lockbox_secret_version.aws-sa-static-key-version.entries[0].text_value)
