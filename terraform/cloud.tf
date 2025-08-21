@@ -23,7 +23,7 @@ resource "yandex_resourcemanager_folder" "logs" {
 
 resource "yandex_resourcemanager_folder" "sa" {
   cloud_id   = yandex_resourcemanager_cloud.ai-radio.id
-  name       = "sa"
+  name       = "service-accounts"
   depends_on = [yandex_billing_cloud_binding.ai-radio-prod-billing]
 }
 
