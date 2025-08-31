@@ -9,7 +9,7 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: cr.yandex/crp8rkrr8btel4schut6/ai-radio-caster
+  repository: cr.yandex/crpql2lunj3qmje5rnos/ai-radio-caster
   pullPolicy: Always
   tag: "latest"
 
@@ -40,12 +40,12 @@ service:
 # https://yandex.cloud/ru/docs/managed-kubernetes/tutorials/new-kubernetes-project#create-ingress
 # https://yandex.cloud/en/docs/application-load-balancer/k8s-ref/ingress
 ingress:
-  logGroupId: e2328eb1mrb5bsl0995r
+  logGroupId: e239var1beii4fu9ecpa
   enabled: true
   className: ""
   annotations:
-    ingress.alb.yc.io/subnets: fl85607db4b5o699f5lj
-    ingress.alb.yc.io/security-groups: enpb8hj4pkkkhrc8fo8b
+    ingress.alb.yc.io/subnets: fl8d2jr8im4t5coavo64
+    ingress.alb.yc.io/security-groups: enp3qrk3oc4een67qghr
     ingress.alb.yc.io/external-ipv4-address: 51.250.112.148
     ingress.alb.yc.io/group-name: ai-radio
     ingress.alb.yc.io/group-settings-name: base-settings
