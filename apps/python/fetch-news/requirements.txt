@@ -3,5 +3,4 @@ asyncio
 aiohttp
 bs4
 openai
-grpcio
 boto3
