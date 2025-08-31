@@ -26,7 +26,7 @@ import (
 
 const (
 	s3Region      = "ru-central1"
-	maxMsgTextLen = 2000
+	maxMsgTextLen = 2100
 )
 
 //goland:noinspection GoUnusedParameter
