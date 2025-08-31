@@ -293,7 +293,7 @@ jobs:
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
         run: terraform -chdir=terraform/ apply -auto-approve tfplan
 
-deploy-fetch-news:
+  deploy-fetch-news:
     needs: terraform
 
     name: "Deploy fetch-news"
