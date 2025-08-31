@@ -55,3 +55,8 @@ apps/python/**/generated
 apps/proto/generated
 apps/proto/cloudapi
 apps/proto/googleapis
+
+ca.pem
+default.kubeconfig
+sa.yaml
+test.kubeconfig

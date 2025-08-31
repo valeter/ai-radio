@@ -22,3 +22,8 @@ variable "speech_generator_version" {
   type    = string
   default = null
 }
+
+variable "fetch_news_version" {
+  type    = string
+  default = null
+}

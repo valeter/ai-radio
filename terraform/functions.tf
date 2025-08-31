@@ -79,7 +79,7 @@ resource "yandex_function" "fetch-news" {
   service_account_id = yandex_iam_service_account.func-sa.id
   environment = {
     "YANDEX_CLOUD_FOLDER" = local.sa_folder_id
-    "QUEUE_URL"           = yandex_message_queue.ai-radio-voice-gen.url
+    "QUEUE_URL"           = data.yandex_message_queue.ai-radio-voice-gen.url
   }
   secrets {
     id                   = yandex_lockbox_secret.aws.id
