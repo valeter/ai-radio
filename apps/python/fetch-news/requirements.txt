@@ -3,6 +3,6 @@ asyncio
 aiohttp
 bs4
 openai
-grpc
+grpcio
 boto3
 binascii
