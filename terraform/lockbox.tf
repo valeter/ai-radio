@@ -66,6 +66,26 @@ data "yandex_lockbox_secret_version" "tts-sa-static-key-version" {
   depends_on = [yandex_lockbox_secret.tts]
 }
 
+// cloud ai
+resource "yandex_lockbox_secret" "ai" {
+  folder_id = local.secrets_folder_id
+  name      = "ai"
+}
+
+resource "yandex_lockbox_secret_iam_binding" "ai-viewer" {
+  secret_id = yandex_lockbox_secret.ai.id
+  role      = "viewer"
+  members = [
+    "group:${yandex_organizationmanager_group.ai-radio-ops.id}",
+  ]
+}
+
+data "yandex_lockbox_secret_version" "ai-sa-static-key-version" {
+  secret_id  = yandex_lockbox_secret.ai.id
+  version_id = yandex_iam_service_account_api_key.ai-sa-api-key.output_to_lockbox_version_id
+  depends_on = [yandex_lockbox_secret.ai]
+}
+
 // outputs
 output "aws_access_key" {
   value     = data.yandex_lockbox_secret_version.aws-sa-static-key-version.entries[1].text_value
@@ -79,5 +99,10 @@ output "aws_secret_key" {
 
 output "tts_key" {
   value     = data.yandex_lockbox_secret_version.tts-sa-static-key-version.entries[0].text_value
+  sensitive = true
+}
+
+output "ai_key" {
+  value     = data.yandex_lockbox_secret_version.ai-sa-static-key-version.entries[0].text_value
   sensitive = true
 }

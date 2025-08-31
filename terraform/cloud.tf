@@ -1,7 +1,7 @@
 // prod
 resource "yandex_resourcemanager_cloud" "ai-radio" {
   organization_id = var.organization_id
-  name            = "ai-radio-2"
+  name            = "ai-radio"
 }
 
 resource "yandex_billing_cloud_binding" "ai-radio-prod-billing" {

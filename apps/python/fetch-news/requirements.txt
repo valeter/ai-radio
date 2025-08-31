@@ -1,0 +1,9 @@
+feedparser
+asyncio
+aiohttp
+bs4
+json
+openai
+grpc
+boto3
+binascii

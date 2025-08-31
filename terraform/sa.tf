@@ -48,28 +48,28 @@ resource "yandex_iam_service_account" "k8s-sa" {
   folder_id = local.sa_folder_id
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-logging-writer" {
-  folder_id = local.logging_folder_id
-  role      = "logging.writer"
-  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+resource "yandex_resourcemanager_cloud_iam_member" "k8s-sa-logging-writer" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "logging.writer"
+  member   = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-cluster-agent" {
-  folder_id = local.network_folder_id
-  role      = "k8s.clusters.agent"
-  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+resource "yandex_resourcemanager_cloud_iam_member" "k8s-sa-cluster-agent" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "k8s.clusters.agent"
+  member   = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-public-admin" {
-  folder_id = local.network_folder_id
-  role      = "vpc.publicAdmin"
-  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+resource "yandex_resourcemanager_cloud_iam_member" "k8s-sa-public-admin" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "vpc.publicAdmin"
+  member   = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "k8s-sa-load-balancer-admin" {
-  folder_id = local.network_folder_id
-  role      = "load-balancer.admin"
-  member    = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
+resource "yandex_resourcemanager_cloud_iam_member" "k8s-sa-load-balancer-admin" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "load-balancer.admin"
+  member   = "serviceAccount:${yandex_iam_service_account.k8s-sa.id}"
 }
 
 // container registry
@@ -185,8 +185,36 @@ resource "yandex_resourcemanager_folder_iam_member" "func-sa-ymq-reader" {
   member    = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "func-sa-ymq-writer" {
+  folder_id = local.sa_folder_id
+  role      = "ymq.writer"
+  member    = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
+}
+
 resource "yandex_resourcemanager_folder_iam_member" "func-sa-logging-writer" {
   folder_id = local.logging_folder_id
   role      = "logging.writer"
   member    = "serviceAccount:${yandex_iam_service_account.func-sa.id}"
+}
+
+// cloud ai invoker
+resource "yandex_iam_service_account" "ai-sa" {
+  folder_id   = local.sa_folder_id
+  name        = "ai"
+  description = "cloud ai invoker service account for ai-radio.ru"
+}
+
+resource "yandex_resourcemanager_cloud_iam_member" "ai-sa-languageModelsUser" {
+  cloud_id = yandex_resourcemanager_cloud.ai-radio.id
+  role     = "ai.languageModels.user"
+  member   = "serviceAccount:${yandex_iam_service_account.ai-sa.id}"
+}
+
+resource "yandex_iam_service_account_api_key" "ai-sa-api-key" {
+  service_account_id = yandex_iam_service_account.ai-sa.id
+  scopes             = ["yc.ai.foundationModels.execute", "yc.ai.languageModels.execute"]
+  output_to_lockbox {
+    entry_for_secret_key = "key"
+    secret_id            = yandex_lockbox_secret.ai.id
+  }
 }

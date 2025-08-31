@@ -222,7 +222,7 @@ jobs:
   deploy-speech-generator:
     needs: terraform
 
-    name: "Deploy speech generator"
+    name: "Deploy speech-generator"
     runs-on: ubuntu-latest
 
     steps:
@@ -288,6 +288,74 @@ jobs:
 
       - name: Terraform Plan
         run: terraform -chdir=terraform/ plan -out=tfplan -var="speech_generator_version=speech-generator-${{ github.sha }}.zip"
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        run: terraform -chdir=terraform/ apply -auto-approve tfplan
+
+deploy-fetch-news:
+    needs: terraform
+
+    name: "Deploy fetch-news"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' 
+
+      - name: Install protoc
+        run: |
+          sudo apt-get update && sudo apt-get install -y protobuf-compiler
+          pip3 install protobuf grpcio-tools
+          protoc --version
+
+      - name: Install python reqs
+        run: |
+          pip3 install -r requirements.txt
+
+      - name: Generate protobuf code
+        working-directory: ./apps
+        run: |
+          ./generate_proto.sh
+
+      - name: Verify generated files
+        run: |
+          git diff --exit-code
+          if [ $? -ne 0 ]; then
+            echo "Generated protobuf files are not up to date!"
+            exit 1
+          fi
+
+      - name: Zip speech-generator
+        working-directory: ./apps/python/fetch-news
+        run: |
+          zip -r fetch-news-${{ github.sha }}.zip ./*
+
+      - name: Upload new version of fetch-news to s3
+        working-directory: ./apps/python/fetch-news
+        run: |
+          aws --endpoint-url=https://storage.yandexcloud.net/ s3 cp ./fetch-news-${{ github.sha }}.zip s3://ai-radio-functions
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform/ plan -out=tfplan -var="fetch_news_version=fetch-news-${{ github.sha }}.zip"
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch

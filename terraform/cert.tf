@@ -1,7 +1,8 @@
 resource "yandex_cm_certificate" "ai-radio-cert" {
-  folder_id = local.network_folder_id
-  name      = "ai-radio-cert"
-  domains   = ["ai-radio.ru"]
+  depends_on = [yandex_dns_zone.ai-radio-zone]
+  folder_id  = local.network_folder_id
+  name       = "ai-radio-cert"
+  domains    = ["ai-radio.ru"]
   managed {
     challenge_type = "DNS_TXT"
   }
@@ -16,9 +17,10 @@ resource "yandex_dns_recordset" "ai-radio-validation-record" {
 }
 
 resource "yandex_cm_certificate" "stream-ai-radio-cert" {
-  folder_id = local.network_folder_id
-  name      = "stream-ai-radio-cert"
-  domains   = ["stream.ai-radio.ru"]
+  depends_on = [yandex_dns_zone.ai-radio-zone]
+  folder_id  = local.network_folder_id
+  name       = "stream-ai-radio-cert"
+  domains    = ["stream.ai-radio.ru"]
   managed {
     challenge_type = "DNS_TXT"
   }

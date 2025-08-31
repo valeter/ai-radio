@@ -17,3 +17,8 @@ resource "yandex_logging_group" "speech-generator-log" {
   name      = "speech-generator-log"
   folder_id = local.logging_folder_id
 }
+
+resource "yandex_logging_group" "fetch-news-log" {
+  name      = "fetch-news-log"
+  folder_id = local.logging_folder_id
+}
