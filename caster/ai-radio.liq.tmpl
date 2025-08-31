@@ -37,19 +37,13 @@ def play_latest_or_playlist() =
   end
 end
 
-news = once(
-  switch([
-    ({0m0s}, play_latest_or_playlist)
-  ])
-)
-
 morning = playlist("/music/playlists/morning.m3u")
 day = playlist("/music/playlists/day.m3u")
 night = playlist("/music/playlists/night.m3u")
 
 radio = switch([({6h-11h}, morning), ({11h-18h}, day), ({18h-6h}, night)])
 radio = random(weights=[1, 5], [jingles, radio])
-radio = switch([({ 0m0s }, news), ({ true }, radio)])
+radio = switch([({ 0m0s }, play_latest_or_playlist()), ({ true }, radio)])
 
 radio = fallback(track_sensitive=false, [radio, mksafe(security)])
 

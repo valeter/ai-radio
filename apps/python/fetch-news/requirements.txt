@@ -1,6 +1,6 @@
-feedparser==6.0.11
-aiohttp==2.3.10
-bs4==0.0.2
-openai==1.53.1
-grpcio==1.62.3
-boto3==1.38.34
+feedparser
+aiohttp
+bs4
+openai
+grpcio
+boto3
