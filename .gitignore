@@ -52,6 +52,8 @@ apps/python/fetch-news/run_local.sh
 
 apps/go/**/generated
 apps/python/**/generated
+apps/python/fetch-news/voicegen
+apps/python/fetch-news/yandex
 apps/proto/generated
 apps/proto/cloudapi
 apps/proto/googleapis

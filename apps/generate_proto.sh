@@ -49,6 +49,9 @@ python -m grpc_tools.protoc \
     --grpc_python_out=proto/generated/python \
     $(find proto/src -name '*.proto')
 
-rm -rf python/fetch-news/generated
-mkdir -p python/fetch-news/generated
-cp -r proto/generated/python/* python/fetch-news/generated
+rm -rf python/fetch-news/voicegen
+rm -rf python/fetch-news/yandex
+cp -r proto/generated/python/* python/fetch-news
+
+touch python/fetch-news/voicegen/__init__.py
+touch python/fetch-news/yandex/cloud/ai/tts/v3/__init__.py

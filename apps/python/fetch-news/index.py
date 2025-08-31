@@ -8,11 +8,10 @@ import logging
 import re
 import openai
 from collections import deque
-import yandex.cloud.ai.tts.v3.tts_pb2 as tts_pb2
-import yandex.cloud.ai.tts.v3.tts_service_pb2_grpc as tts_service_pb2_grpc
+from yandex.cloud.ai.tts.v3 import tts_pb2, tts_service_pb2_grpc
 import grpc
 import os
-import generated.voicegen.voice_generation_pb2 as voice_generation_pb2
+import voicegen.voice_generation_pb2 as voice_generation_pb2
 import boto3
 import binascii
 

@@ -2,7 +2,8 @@
 
 https://ai-radio.ru
 
-ai powered radiostation based on yandex cloud
+ai powered yandex cloud based radiostation
+
 features:
 - auto-ai-generated actual news block
 - manually ai-generated music blocks
