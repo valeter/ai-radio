@@ -260,7 +260,7 @@ def handler(event, context):
         voice_request.tts_role = voice_generation_pb2.NEUTRAL
         voice_request.s3_bucket = "ai-radio-music"
         voice_request.s3_folder = "news/" + str(date.today())
-        voice_request.s3_unique_key = str(hash(text))
+        voice_request.s3_unique_key = "main-" + str(datetime.now().hour)
 
         serialized_message = voice_request.SerializeToString()
 

@@ -14,6 +14,7 @@ import (
 	"os"
 	"strings"
 	"unicode/utf8"
+	"bytes"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -153,13 +154,13 @@ func processMessage(message *model.MqMessage) error {
 		return err
 	}
 
-	nextFileNumber := 1
 	var prefix string
 	if strings.HasSuffix(msg.S3Folder, "/") {
 		prefix = msg.S3Folder + msg.S3UniqueKey + "_"
 	} else {
-		prefix = msg.S3Folder + "/" + msg.S3UniqueKey + "_"
+		prefix = msg.S3Folder + "/" + msg.S3UniqueKey
 	}
+	var combinedAudioData bytes.Buffer
 	for {
 		audioData, err2 := response.Recv()
 		if err2 != nil {
@@ -169,15 +170,19 @@ func processMessage(message *model.MqMessage) error {
 			}
 			return err2
 		}
-		fileName := fmt.Sprintf("%s%d.mp3", prefix, nextFileNumber)
-		err2 = saveToS3(s3Client, audioData.AudioChunk.Data, msg.S3Bucket, fileName)
+		_, err2 = combinedAudioData.Write(audioData.AudioChunk.Data)
 		if err2 != nil {
-			fmt.Printf("Ошибка при сохранении в object storage: %s\n", fileName)
+			fmt.Printf("Ошибка при объединении аудио: %s\n")
 			return err2
 		}
-		fmt.Printf("Аудио успешно сохранено в object storage: %s\n", fileName)
-		nextFileNumber++
 	}
+	fileName := fmt.Sprintf("%s.mp3", prefix)
+	err3 := saveToS3(s3Client, combinedAudioData.Bytes(), msg.S3Bucket, fileName)
+	if err3 != nil {
+		fmt.Printf("Ошибка при сохранении в object storage: %s\n", fileName)
+		return err3
+	}
+	fmt.Printf("Аудио успешно сохранено в object storage: %s\n", fileName)
 	return nil
 }
 
