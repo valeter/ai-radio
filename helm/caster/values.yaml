@@ -46,7 +46,7 @@ ingress:
   annotations:
     ingress.alb.yc.io/subnets: fl8d2jr8im4t5coavo64
     ingress.alb.yc.io/security-groups: enp3qrk3oc4een67qghr
-    ingress.alb.yc.io/external-ipv4-address: 51.250.112.148
+    ingress.alb.yc.io/external-ipv4-address: 51.250.115.74
     ingress.alb.yc.io/group-name: ai-radio
     ingress.alb.yc.io/group-settings-name: base-settings
 
