@@ -8,7 +8,40 @@ security = single("/music/example/white_noise.mp3")
 
 jingles = playlist("/music/playlists/jingles.m3u")
 
-news = playlist("/music/playlists/news.m3u")
+news_playlist = playlist("/music/playlists/news.m3u")
+
+# Function to get the current date in YYYY-MM-DD format
+def get_current_date() =
+  time.string("%Y-%m-%d")
+end
+
+# Function to play the latest file from a directory or fallback to playlist
+def play_latest_or_playlist() =
+  date_dir = "/music/news/" ^ get_current_date()
+  
+  # Check if the directory exists
+  if file.exists(date_dir) then
+    # Find the lexicographically last file in the directory
+    last_file_cmd = "find " ^ process.quote(date_dir) ^ " -type f | sort | tail -n 1"
+    last_file = process.read(last_file_cmd)
+
+    # Play the last file if found, otherwise fallback to the news playlist
+    if last_file != "" then
+      single(last_file)
+    else
+      news_playlist
+    end
+  else
+    # If the directory doesn't exist, play the news playlist
+    news_playlist
+  end
+end
+
+news = once(
+  switch([
+    ({0m0s}, play_latest_or_playlist)
+  ])
+)
 
 morning = playlist("/music/playlists/morning.m3u")
 day = playlist("/music/playlists/day.m3u")
