@@ -257,7 +257,8 @@ def get_storage_client():
     return storage_client
 
 def handler(event, context):
-    filename = "main-" + str(datetime.now().hour)
+    foldername = "news/" + str(date.today())
+    filename = "main-" + str(datetime.now().hour + 3)
     try:
         text = asyncio.run(receive_news_text())
         if not text:
@@ -273,7 +274,7 @@ def handler(event, context):
         voice_request.tts_voice = voice_generation_pb2.ANTON
         voice_request.tts_role = voice_generation_pb2.NEUTRAL
         voice_request.s3_bucket = "ai-radio-music"
-        voice_request.s3_folder = "news/" + str(date.today())
+        voice_request.s3_folder = foldername
         voice_request.s3_unique_key = filename
 
         serialized_message = voice_request.SerializeToString()
@@ -300,7 +301,7 @@ def handler(event, context):
     try:
         bucket_name = "ai-radio-music"
         playlist_key = "playlists/news.m3u"
-        playlist_str = "/music/jingles/news_start.mp3\n/music/news/" + filename + ".mp3\n/music/jingles/news_end.mp3"
+        playlist_str = "/music/jingles/news_start.mp3\n/music/" + foldername + "/" + filename + ".mp3\n/music/jingles/news_end.mp3"
         response = get_storage_client().put_object(Bucket=bucket_name, Key=playlist_key, Body=playlist_str)
         print(response)
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
