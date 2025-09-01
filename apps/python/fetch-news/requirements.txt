@@ -2,7 +2,7 @@ feedparser
 aiohttp
 bs4
 openai
-grpcio
+grpcio==1.68.0
 boto3
-protobuf
+protobuf==5.29.1
 lxml

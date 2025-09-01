@@ -242,7 +242,7 @@ jobs:
       - name: Install protoc
         run: |
           sudo apt-get update && sudo apt-get install -y protobuf-compiler
-          pip3 install protobuf grpcio grpcio-tools
+          pip3 install "protobuf==5.29.1" "grpcio==1.68.0" "grpcio-tools==1.68.0"
           protoc --version
 
       - name: Install protoc-gen-go

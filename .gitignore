@@ -60,5 +60,5 @@ apps/proto/googleapis
 
 ca.pem
 default.kubeconfig
-sa.yaml
+k8s-sa.yaml
 test.kubeconfig
