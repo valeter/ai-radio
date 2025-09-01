@@ -72,7 +72,7 @@ resource "yandex_function" "fetch-news" {
   name               = "fetch-news"
   description        = "generates message for speech-generator with actual news"
   user_hash          = var.fetch_news_version
-  runtime            = "python37"
+  runtime            = "python38"
   entrypoint         = "index.handler"
   memory             = "128"
   execution_timeout  = "60"
