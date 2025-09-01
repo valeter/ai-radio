@@ -211,6 +211,7 @@ async def receive_news_text():
 
 boto_session = None
 ymq_queue = None
+storage_client = None
 
 def get_boto_session():
     global boto_session
@@ -243,7 +244,20 @@ def get_ymq_queue():
     ).Queue(QUEUE_URL)
     return ymq_queue
 
+def get_storage_client():
+    global storage_client
+    if storage_client is not None:
+        return storage_client
+
+    storage_client = get_boto_session().client(
+        service_name='s3',
+        endpoint_url='https://storage.yandexcloud.net',
+        region_name='ru-central1'
+    )
+    return storage_client
+
 def handler(event, context):
+    filename = "main-" + str(datetime.now().hour)
     try:
         text = asyncio.run(receive_news_text())
         if not text:
@@ -260,7 +274,7 @@ def handler(event, context):
         voice_request.tts_role = voice_generation_pb2.NEUTRAL
         voice_request.s3_bucket = "ai-radio-music"
         voice_request.s3_folder = "news/" + str(date.today())
-        voice_request.s3_unique_key = "main-" + str(datetime.now().hour)
+        voice_request.s3_unique_key = filename
 
         serialized_message = voice_request.SerializeToString()
 
@@ -281,6 +295,22 @@ def handler(event, context):
             'statusCode': 500,
             'body': json.dumps({'error': f'Failed to send message to yqm: {e}'})
         }
+
+    # Создание объекта и запись данных
+    try:
+        bucket_name = "ai-radio-music"
+        playlist_key = "playlists/news.m3u"
+        playlist_str = "/music/jingles/news_start.mp3\n/music/news/" + filename + ".mp3\n/music/jingles/news_end.mp3"
+        response = get_storage_client().put_object(Bucket=bucket_name, Key=playlist_key, Body=playlist_str)
+        print(response)
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            print(f"Плейлист успешно сохранён в s3://{bucket_name}/{playlist_key}")
+        else:
+            print("Произошла ошибка при загрузке")
+    except s3_resource.meta.client.exceptions.NoSuchBucketError:
+        print("Указанный бакет не существует.")
+    except Exception as e:
+        print(f"Произошла непредвиденная ошибка: {e}")
 
     return {
         'statusCode': 200,
