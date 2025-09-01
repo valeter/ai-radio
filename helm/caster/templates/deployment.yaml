@@ -17,6 +17,7 @@ spec:
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
+        rollme: {{ randAlphaNum 5 | quote }} # restart after each helm upgrade
       {{- end }}
       labels:
         {{- include "caster.labels" . | nindent 8 }}

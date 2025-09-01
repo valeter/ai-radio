@@ -9,6 +9,7 @@ metadata:
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
+    rollme: {{ randAlphaNum 5 | quote }}  # restart after each helm upgrade
   {{- end }}
 spec:
   {{- with .Values.ingress.className }}
