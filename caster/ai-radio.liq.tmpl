@@ -3,20 +3,22 @@
 # Logging
 log.file.path.set("/var/log/liquidsoap/ai-radio.log")
 
+# Use the telnet server for requests
+settings.server.telnet := true
+
 # If something goes wrong, we'll play this
 security = single("/music/example/white_noise.mp3")
 
-jingles = playlist("/music/playlists/jingles.m3u")
+jingles = playlist(reload_mode="watch", "/music/playlists/jingles.m3u", mode="random")
+morning = playlist(reload_mode="watch", "/music/playlists/morning.m3u", mode="random")
+day = playlist(reload_mode="watch", "/music/playlists/day.m3u", mode="random")
+night = playlist(reload_mode="watch", "/music/playlists/night.m3u", mode="random")
 
-news = playlist("/music/playlists/news.m3u")
-
-morning = playlist("/music/playlists/morning.m3u")
-day = playlist("/music/playlists/day.m3u")
-night = playlist("/music/playlists/night.m3u")
+news = playlist(reload_mode="watch", "/music/playlists/news.m3u")
 
 radio = switch([({6h-11h}, morning), ({11h-18h}, day), ({18h-6h}, night)])
 radio = random(weights=[1, 5], [jingles, radio])
-radio = switch([({ 0m0s }, news), ({ true }, radio)])
+radio = switch([({ 0m or 10m or 20m or 30m or 40m or 50m }, news), ({ true }, radio)])
 
 radio = fallback(track_sensitive=false, [radio, mksafe(security)])
 
