@@ -258,7 +258,7 @@ def get_storage_client():
 
 def handler(event, context):
     foldername = "news/" + str(date.today())
-    filename = "main-" + str(datetime.now().hour + 3)
+    filename = "main-" + str(datetime.now().strftime("%H%M"))
     try:
         text = asyncio.run(receive_news_text())
         if not text:
