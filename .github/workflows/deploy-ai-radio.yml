@@ -245,10 +245,6 @@ jobs:
           pip3 install protobuf grpcio grpcio-tools
           protoc --version
 
-      - name: Install python reqs
-        run: |
-          pip3 install -r apps/python/fetch-news/requirements.txt
-
       - name: Install protoc-gen-go
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
