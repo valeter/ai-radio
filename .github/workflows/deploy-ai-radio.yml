@@ -219,10 +219,6 @@ jobs:
             --set-file saKeySecretKey=~/.config/yandex/key.json \
             ai-radio-caster helm/caster/
 
-          kubectl --namespace ai-radio rollout restart deployment/yc-alb-ingress-controller
-          
-          kubectl --namespace ai-radio rollout restart deployment/ai-radio-caster
-
   deploy-functions:
     needs: terraform
 
