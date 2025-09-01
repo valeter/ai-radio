@@ -4,6 +4,5 @@ bs4
 openai
 grpcio
 boto3
-yandex-cloud-sdk
 protobuf
 lxml
