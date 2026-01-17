@@ -125,6 +125,6 @@ resource "yandex_function_trigger" "fetch-news-cron-trigger" {
   }
 
   timer {
-    cron_expression = "22,52 * ? * * *"
+    cron_expression = "52 8,10,12,14,16,18,20,22 ? * * *"
   }
 }
