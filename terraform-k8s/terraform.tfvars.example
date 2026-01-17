@@ -1,0 +1,55 @@
+# Provider configuration
+kubeconfig_path    = "~/.kube/config"
+kubeconfig_context = "yc-k8s-cluster"
+
+# General configuration
+app_name         = "ai-radio-caster"
+namespace        = "ai-radio"
+create_namespace = true
+
+# Deployment configuration
+replica_count     = 1
+image_repository  = "cr.yandex/crpql2lunj3qmje5rnos/ai-radio-caster"
+image_tag         = "latest"
+image_pull_policy = "Always"
+container_port    = 32745
+privileged        = true
+
+# Resources
+resources_requests_cpu    = "100m"
+resources_requests_memory = "128M"
+# resources_limits_cpu    = "500m"
+# resources_limits_memory = "256M"
+
+# Health probes
+health_probe_path = "/ping"
+
+# Service
+service_type = "NodePort"
+
+# Service Account
+create_service_account        = true
+service_account_cluster_admin = true
+
+# Ingress
+ingress_enabled   = true
+ingress_host      = "stream.ai-radio.ru"
+ingress_path      = "/"
+ingress_path_type = "Exact"
+
+# Yandex Cloud ALB
+yc_alb_subnets         = "fl8d2jr8im4t5coavo64"
+yc_alb_security_groups = "enpfr1ed7imm6nej45ht"
+yc_alb_external_ipv4   = "51.250.115.74"
+yc_alb_group_name      = "ai-radio"
+yc_alb_log_group_id    = "e239var1beii4fu9ecpa"
+yc_tls_secret_name     = "yc-certmgr-cert-id-fpqlooi4u8gmukddm0pm"
+
+# HPA (Horizontal Pod Autoscaler)
+hpa_enabled                = false
+hpa_min_replicas           = 1
+hpa_max_replicas           = 100
+hpa_target_cpu_utilization = 80
+
+# Additional labels
+labels = {}
