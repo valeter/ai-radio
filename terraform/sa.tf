@@ -200,7 +200,7 @@ resource "yandex_resourcemanager_folder_iam_member" "func-sa-logging-writer" {
 // cloud ai invoker
 resource "yandex_iam_service_account" "ai-sa" {
   folder_id   = local.sa_folder_id
-  name        = "ai"
+  name        = "cloud-ai"
   description = "cloud ai invoker service account for ai-radio.ru"
 }
 

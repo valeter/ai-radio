@@ -10,7 +10,7 @@ resource "yandex_kubernetes_cluster" "k8s-cluster" {
 
   master {
     public_ip = true
-    version   = "1.30"
+    version   = "1.31"
     maintenance_policy {
       auto_upgrade = true
       maintenance_window {
