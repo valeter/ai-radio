@@ -162,7 +162,7 @@ jobs:
           mkdir -p ~/.config/yandex
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
-      -name: Configure kubectl
+      - name: Configure kubectl
         env:
           K8S_CERT: ${{ secrets.K8S_CERT }}
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
