@@ -166,7 +166,7 @@ jobs:
         id: issue-iam-token
         uses: yc-actions/yc-iam-token@v1
         with:
-          service-account-key: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
+          yc-sa-json-credentials: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
 
       - name: Configure kubectl
         env:
