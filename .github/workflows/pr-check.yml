@@ -88,9 +88,13 @@ jobs:
 
             // 2. Prepare format of the comment
             // Экранируем обратные кавычки в выводах Terraform
-            const escapeBackticks = (text) => {
+            const escapeForMarkdown = (text) => {
               if (!text) return '';
-              return text.replace(/`/g, '\\`');
+              // Экранируем обратные кавычки и обратные слеши
+              return text
+                .replace(/\\/g, '\\\\')
+                .replace(/`/g, '\\`')
+                .replace(/\$/g, '\\$');
             };
 
             const fmtOutput = '${{ steps.fmt.outcome }}';
