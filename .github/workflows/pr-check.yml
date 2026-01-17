@@ -87,13 +87,23 @@ jobs:
             })
 
             // 2. Prepare format of the comment
+            const escapeBackticks = (text) => {
+              if (!text) return '';
+              return text.replace(/`/g, '\\`');
+            };
+
+            const fmtOutput = '${{ steps.fmt.outcome }}';
+            const initOutput = '${{ steps.init.outcome }}';
+            const validateOutput = escapeBackticks('${{ steps.validate.outputs.stdout }}');
+            const planOutput = escapeBackticks('${{ steps.plan.outputs.stdout }}');
+            
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
 
             \`\`\`\n
-            ${{ steps.validate.outputs.stdout }}
+            ${validateOutput}
             \`\`\`
 
             </details>
@@ -103,7 +113,7 @@ jobs:
             <details><summary>Show Plan</summary>
 
             \`\`\`\n
-            ${process.env.PLAN}
+            ${planOutput}
             \`\`\`
 
             </details>

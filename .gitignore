@@ -39,6 +39,8 @@ terraform-vars.sh
 .terraform.lock.hcl
 terraform.tfstate
 
+.venv/
+
 helm.sh
 
 certs/
