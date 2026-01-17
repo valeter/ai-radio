@@ -210,6 +210,10 @@ jobs:
     name: "Deploy k8s resources from terraform-k8s/"
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: "terraform-k8s/"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -241,30 +245,29 @@ jobs:
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
         run: |
           echo "$K8S_CERT" > ca.pem
-          mkdir -p ~/.config
-          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=~/.config/default.kubeconfig
-          kubectl config set-credentials yc-managed-k8s --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=~/.config/default.kubeconfig
-          kubectl config set-context default --cluster=k8s-cluster --user=yc-managed-k8s --kubeconfig=~/.config/default.kubeconfig
-          kubectl config use-context default --kubeconfig=~/.config/default.kubeconfig
+          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
+          kubectl config set-credentials yc-managed-k8s --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=yc-managed-k8s --kubeconfig=default.kubeconfig
+          kubectl config use-context default --kubeconfig=default.kubeconfig
 
       - name: Terraform Init
         env: 
-          TF_VAR_kubeconfig_path: ~/.config/default.kubeconfig
+          TF_VAR_kubeconfig_path: default.kubeconfig
         run: |
           echo "Introspecting config..."
-          cat ~/.config/default.kubeconfig
-          terraform -chdir=terraform-k8s/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
+          cat default.kubeconfig
+          terraform init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Terraform Plan
         env: 
-          TF_VAR_kubeconfig_path: ~/.config/default.kubeconfig
-        run: terraform -chdir=terraform-k8s/ plan -no-color -out=tfplan
+          TF_VAR_kubeconfig_path: default.kubeconfig
+        run: terraform plan -no-color -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
         env: 
-          TF_VAR_kubeconfig_path: ~/.config/default.kubeconfig
-        run: terraform -chdir=terraform-k8s/ apply -auto-approve tfplan
+          TF_VAR_kubeconfig_path: default.kubeconfig
+        run: terraform apply -auto-approve tfplan
 
 
   deploy-functions:
