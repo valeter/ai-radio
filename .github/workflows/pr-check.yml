@@ -174,7 +174,7 @@ jobs:
 
       - name: Terraform fmt
         env: 
-          TF_VAR_kubeconfig_path="default.kubeconfig"
+          TF_VAR_kubeconfig_path: default.kubeconfig
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
@@ -187,14 +187,14 @@ jobs:
 
       - name: Terraform Validate
         env: 
-          TF_VAR_kubeconfig_path="default.kubeconfig"
+          TF_VAR_kubeconfig_path: default.kubeconfig
         id: validate
         run: terraform validate -no-color
         continue-on-error: true
 
       - name: Terraform Plan
         env: 
-          TF_VAR_kubeconfig_path="default.kubeconfig"
+          TF_VAR_kubeconfig_path: default.kubeconfig
         id: plan
         run: terraform plan -no-color
         continue-on-error: true
