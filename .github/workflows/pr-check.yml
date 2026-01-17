@@ -86,32 +86,24 @@ jobs:
               return comment.body.includes('Terraform Format and Style')
             })
 
-            // 2. Prepare format of the comment
-            // Экранируем обратные кавычки в выводах Terraform
-            const escapeForMarkdown = (text) => {
-              if (!text) return '';
-              // Экранируем обратные кавычки и обратные слеши
-              return text
-                .replace(/\\/g, '\\\\')
-                .replace(/`/g, '\\`')
-                .replace(/\$/g, '\\$');
-            };
-
-            const fmtOutput = '${{ steps.fmt.outcome }}';
-            const initOutput = '${{ steps.init.outcome }}';
-            const validateOutput = escapeBackticks('${{ steps.validate.outputs.stdout }}');
-            const planOutput = escapeBackticks('${{ steps.plan.outputs.stdout }}');
-
             const output = `#### Terraform Format and Style 🖌\`${fmtOutput}\`
             #### Terraform Initialization ⚙️\`${initOutput}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
+
+            \`\`\`
+            
+            \`\`\`
 
             </details>
 
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
 
             <details><summary>Show Plan</summary>
+
+            \`\`\`
+            
+            \`\`\`
 
             </details>
 
