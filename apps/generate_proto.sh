@@ -27,7 +27,7 @@ source "$VENV_DIR/bin/activate"
 
 # Устанавливаем зависимости в venv
 echo_info "Installing Python dependencies in virtual environment..."
-"$VENV_DIR/bin/pip" install grpcio grpcio-tools
+"$VENV_DIR/bin/pip" install "protobuf==5.29.1" "grpcio==1.76.0" "grpcio-tools==1.76.0"
 
 # Проверка зависимостей
 check_dependency() {
