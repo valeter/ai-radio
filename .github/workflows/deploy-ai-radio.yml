@@ -195,8 +195,10 @@ jobs:
 
           helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/gwin/gwin-chart --version v1.0.7 --untar
 
-          helm install --namespace ai-radio --set controller.folderId=$K8S_FOLDER_ID \
-            --set controller.ycServiceAccount.secret.value=${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }} gwin ./gwin-chart/
+          helm install gwin ./gwin-chart/ \
+            --namespace ai-radio \
+            --set controller.folderId=$K8S_FOLDER_ID \
+            --set controller.ycServiceAccount.secret.value='${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}'
 
   deploy-k8s-terraform:
     needs: helm-install-gwin-controller
