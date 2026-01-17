@@ -162,6 +162,12 @@ jobs:
           mkdir -p ~/.config/yandex
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
+      - name: IAM Token
+        id: issue-iam-token
+        uses: yc-actions/yc-iam-token@v1
+        with:
+          service-account-key: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
+
       - name: Configure kubectl
         env:
           K8S_CERT: ${{ secrets.K8S_CERT }}
@@ -169,7 +175,7 @@ jobs:
         run: |
           echo "$K8S_CERT" > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-credentials yc-managed-k8s --client-key=~/.config/yandex/key.json --kubeconfig=default.kubeconfig
+          kubectl config set-credentials yc-managed-k8s --external --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=default.kubeconfig
           kubectl config set-context default --cluster=k8s-cluster --user=yc-managed-k8s --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
           echo config
