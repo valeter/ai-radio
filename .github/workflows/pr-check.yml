@@ -86,7 +86,7 @@ jobs:
               return comment.body.includes('Terraform Format and Style')
             })
 
-            const output = `#### Terraform Format and Style 🖌\`${fmtOutput}\`
+            const output = `#### Terraform Format and Style 
             #### Terraform Initialization ⚙️\`${initOutput}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
