@@ -7,7 +7,6 @@ on:
 
 env:
   TF_VERSION: "1.10.5"
-  HELM_VERSION: "v3.17.1"
   KUBE_VERSION: "v1.30.1"
 
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
@@ -26,7 +25,7 @@ env:
 
 jobs:
   terraform:
-    name: "Terraform checks"
+    name: "YC terraform checks for terraform/"
     runs-on: ubuntu-latest
 
     defaults:
@@ -84,13 +83,118 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.body.includes('Terraform Format and Style')
+              return comment.body.includes('YC terraform format and style')
             })
 
             // 2. Prepare format of the comment
             // Экранируем обратные кавычки в выводах Terraform
 
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            const output = `#### YC terraform format and style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`
+            ${process.env.VALIDATE}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
+
+  terraform-k8s:
+    name: "K8s terraform checks for terraform-k8s/"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: "terraform-k8s/"
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - name: Write pr comment
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          VALIDATE: "${{ steps.validate.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.body.includes('K8s terraform format and style')
+            })
+
+            // 2. Prepare format of the comment
+            // Экранируем обратные кавычки в выводах Terraform
+
+            const output = `#### K8s terraform format and style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
@@ -174,113 +278,6 @@ jobs:
             --secret "id=AWS_SECRET_KEY_ID,env=AWS_SECRET_KEY_ID" \
             --secret "id=ICECAST_PASSWORD,env=ICECAST_PASSWORD" \
             -t $DOCKER_CASTER_IMAGE:latest ./caster
-
-  helm-checks:
-    name: "Helm checks"
-    runs-on: ubuntu-latest
-
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Helm
-        uses: azure/setup-helm@v4.3.0
-        with:
-           version: ${{ env.HELM_VERSION }}
-
-      - name: Install Kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-           version: ${{ env.KUBE_VERSION }}
-
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Configure Yandex Cloud credentials
-        run: |
-          mkdir -p ~/.config/yandex
-          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
-
-      - name: IAM Token
-        id: issue-iam-token
-        uses: yc-actions/yc-iam-token@v1
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
-
-      - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
-
-      - name: Helm Init
-        run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
-
-      - name: Helm Lint
-        id: helm-lint
-        run: helm lint --namespace ai-radio helm/caster/
-        continue-on-error: true
-
-      - name: Helm Dry run
-        id: helm-dry-run
-        env:
-          K8S_CERT: ${{ secrets.K8S_CERT }}
-          K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
-          K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
-        run: |
-          echo "$K8S_CERT" > ca.pem
-          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-credentials admin-user --token=$K8S_TOKEN --kubeconfig=default.kubeconfig
-          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
-          kubectl config use-context default --kubeconfig=default.kubeconfig
-          
-          helm upgrade --dry-run \
-            --kubeconfig default.kubeconfig \
-            --namespace ai-radio -i ai-radio-caster helm/caster/
-        continue-on-error: true
-
-      - name: Write Pr comment
-        uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // 1. Retrieve existing bot comments for the PR
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
-            const botComment = comments.find(comment => {
-              return comment.body.includes('Helm checks')
-            })
-
-            // 2. Prepare format of the comment
-            const output = `#### Helm checks
-            #### Helm Lint ⚙️\`${{ steps.helm-lint.outcome }}\`
-
-            #### Helm upgrade dry run 📖\`${{ steps.helm-dry-run.outcome }}\`
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`helm\`, Workflow: \`${{ github.workflow }}\`*`;
-
-            // 3. If we have a comment, update it, otherwise create a new one
-            if (botComment) {
-              github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              })
-            } else {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: output
-              })
-            }
 
   verify-app-build:
     name: "Verify proto generation & app build"

@@ -1,23 +1,20 @@
 resource "kubernetes_ingress_v1" "this" {
-  count = var.ingress_enabled ? 1 : 0
-
   metadata {
     name      = local.app_name
     namespace = local.namespace
     labels    = local.common_labels
 
     annotations = {
-      "ingress.alb.yc.io/subnets"               = var.yc_alb_subnets
-      "ingress.alb.yc.io/security-groups"       = var.yc_alb_security_groups
-      "ingress.alb.yc.io/external-ipv4-address" = var.yc_alb_external_ipv4
-      "ingress.alb.yc.io/group-name"            = var.yc_alb_group_name
-      "ingress.alb.yc.io/group-settings-name"   = "base-settings"
-      "rollme" = "${random_id.rollme.hex}"
+      "gwin.yandex.cloud/securityGroups"       = var.yc_alb_security_groups
+      "gwin.yandex.cloud/externalIPv4Address"  = var.yc_alb_external_ipv4
+      "gwin.yandex.cloud/rules.allowedMethods" = "GET"
+      "gwin.yandex.cloud/groupName"            = var.yc_alb_group_name
+      "rollme"                                 = "${random_id.rollme.hex}"
     }
   }
 
   spec {
-    ingress_class_name = var.ingress_class_name
+    ingress_class_name = "gwin-default"
 
     tls {
       hosts       = [var.ingress_host]
@@ -48,8 +45,7 @@ resource "kubernetes_ingress_v1" "this" {
 
   depends_on = [
     kubernetes_namespace_v1.this,
-    kubernetes_service_v1.this,
-    kubectl_manifest.ingress_group_settings
+    kubernetes_service_v1.this
   ]
 }
 

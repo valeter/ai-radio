@@ -39,7 +39,7 @@ resource "yandex_kubernetes_node_group" "worker-nodes-d" {
   cluster_id = yandex_kubernetes_cluster.k8s-cluster.id
   depends_on = [yandex_organizationmanager_os_login_settings.os_login_settings]
 
-  version = "1.30"
+  version = "1.31"
   deploy_policy {
     max_expansion   = 1
     max_unavailable = 1

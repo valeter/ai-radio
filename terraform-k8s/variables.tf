@@ -24,12 +24,6 @@ variable "namespace" {
   default     = "ai-radio"
 }
 
-variable "create_namespace" {
-  description = "Create namespace if it doesn't exist"
-  type        = bool
-  default     = true
-}
-
 # Deployment configuration
 variable "replica_count" {
   description = "Number of replicas"
@@ -112,22 +106,8 @@ variable "service_type" {
   default     = "NodePort"
 }
 
-# Service Account
-variable "create_service_account" {
-  description = "Create service account"
-  type        = bool
-  default     = true
-}
-
 variable "service_account_cluster_admin" {
   description = "Grant cluster-admin role to service account"
-  type        = bool
-  default     = true
-}
-
-# Ingress configuration
-variable "ingress_enabled" {
-  description = "Enable ingress"
   type        = bool
   default     = true
 }
@@ -148,12 +128,6 @@ variable "ingress_path_type" {
   description = "Ingress path type"
   type        = string
   default     = "Exact"
-}
-
-variable "ingress_class_name" {
-  description = "Ingress class name (leave empty for default or Yandex Cloud ALB)"
-  type        = string
-  default     = ""
 }
 
 # Yandex Cloud ALB configuration
@@ -181,41 +155,10 @@ variable "yc_alb_group_name" {
   default     = "ai-radio"
 }
 
-variable "yc_alb_log_group_id" {
-  description = "Yandex Cloud ALB log group ID"
-  type        = string
-  default     = "e239var1beii4fu9ecpa"
-}
-
 variable "yc_tls_secret_name" {
   description = "Yandex Cloud TLS certificate secret name"
   type        = string
-  default     = "yc-certmgr-cert-id-fpqlooi4u8gmukddm0pm"
-}
-
-# HPA configuration
-variable "hpa_enabled" {
-  description = "Enable Horizontal Pod Autoscaler"
-  type        = bool
-  default     = false
-}
-
-variable "hpa_min_replicas" {
-  description = "HPA minimum replicas"
-  type        = number
-  default     = 1
-}
-
-variable "hpa_max_replicas" {
-  description = "HPA maximum replicas"
-  type        = number
-  default     = 100
-}
-
-variable "hpa_target_cpu_utilization" {
-  description = "HPA target CPU utilization percentage"
-  type        = number
-  default     = 80
+  default     = "yc-certmgr-cert-id-fpq14tvge5eld39er7nf"
 }
 
 # Labels

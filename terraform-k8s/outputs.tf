@@ -15,15 +15,15 @@ output "service_name" {
 
 output "service_account_name" {
   description = "Service account name"
-  value       = var.create_service_account ? kubernetes_service_account_v1.this[0].metadata[0].name : null
+  value       = kubernetes_service_account_v1.this.metadata[0].name
 }
 
 output "ingress_host" {
   description = "Ingress host"
-  value       = var.ingress_enabled ? var.ingress_host : null
+  value       = var.ingress_host
 }
 
 output "ingress_url" {
   description = "Application URL"
-  value       = var.ingress_enabled ? "https://${var.ingress_host}" : null
+  value       = "https://${var.ingress_host}"
 }

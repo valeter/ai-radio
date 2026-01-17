@@ -32,7 +32,7 @@ env:
 
 jobs:
   terraform:
-    name: "Terraform"
+    name: "Deploy yc terraform resources from terraform/"
     runs-on: ubuntu-latest
 
     steps:
@@ -133,9 +133,9 @@ jobs:
           docker push $DOCKER_CASTER_IMAGE:latest
           docker push $DOCKER_CASTER_IMAGE:${{ github.sha }}
 
-  deploy-helm:
+  helm-install-gwin-controller:
     needs: deploy-docker
-    name: "Deploy helm"
+    name: "Helm install gwin controller"
     runs-on: ubuntu-latest
 
     permissions:
@@ -177,47 +177,55 @@ jobs:
       - name: Helm Init
         run: echo ${{ steps.issue-iam-token.outputs.token }}  | helm registry login cr.yandex -u iam --password-stdin
 
-      - name: Helm Lint
-        id: helm-lint
-        run: helm lint --namespace ai-radio helm/caster/
-        continue-on-error: true
-
       - name: Configure folder and cluster ids
         run: |
           echo "K8S_FOLDER_ID=$(terraform -chdir=terraform/ output --raw ai_radio_network_folder_id)" >> $GITHUB_ENV
           echo "K8S_CLUSTER_ID=$(terraform -chdir=terraform/ output --raw k8s_cluster_id)" >> $GITHUB_ENV
 
-      - name: Helm upgrade
+      - name: Helm install gwin
         env:
           K8S_CERT: ${{ secrets.K8S_CERT }}
           K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
-          K8S_TOKEN: ${{ secrets.K8S_SA_TOKEN }}
         run: |
           echo "$K8S_CERT" > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-credentials admin-user --token=$K8S_TOKEN --kubeconfig=default.kubeconfig
           kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
 
-          helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/yc-alb-ingress/yc-alb-ingress-controller-chart \
-            --version v0.2.19 \
-            --untar
+          helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/gwin/gwin-chart --version v1.0.7 --untar
 
-          helm upgrade -i --namespace ai-radio \
-            --kubeconfig default.kubeconfig \
-            --create-namespace \
-            --set folderId=$K8S_FOLDER_ID \
-            --set clusterId=$K8S_CLUSTER_ID \
-            --set enableDefaultHealthChecks=true \
-            --set-file saKeySecretKey=~/.config/yandex/key.json \
-            yc-alb-ingress-controller ./yc-alb-ingress-controller-chart/
-          
-          helm upgrade -i --namespace ai-radio \
-            --kubeconfig default.kubeconfig \
-            --set folderId=$K8S_FOLDER_ID \
-            --set clusterId=$K8S_CLUSTER_ID \
-            --set-file saKeySecretKey=~/.config/yandex/key.json \
-            ai-radio-caster helm/caster/
+          helm install --namespace ai-radio --set controller.folderId=$K8S_FOLDER_ID \
+            --set-file controller.ycServiceAccount.secret.value=~/.config/yandex/key.json gwin ./gwin-chart/
+
+  deploy-k8s-terraform:
+    needs: helm-install-gwin-controller
+    name: "Deploy k8s resources from terraform-k8s/"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure Yandex Cloud credentials
+        run: |
+          mkdir -p ~/.config/yandex
+          echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform-k8s/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform-k8s/ plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        run: terraform -chdir=terraform-k8s/ apply -auto-approve tfplan
+
 
   deploy-functions:
     needs: terraform

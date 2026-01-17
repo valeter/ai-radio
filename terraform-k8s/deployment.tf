@@ -6,7 +6,7 @@ resource "kubernetes_deployment_v1" "this" {
   }
 
   spec {
-    replicas = var.hpa_enabled ? null : var.replica_count
+    replicas = var.replica_count
 
     selector {
       match_labels = local.selector_labels
@@ -18,7 +18,7 @@ resource "kubernetes_deployment_v1" "this" {
       }
 
       spec {
-        service_account_name = var.create_service_account ? local.service_account_name : null
+        service_account_name = local.service_account_name
 
         dynamic "image_pull_secrets" {
           for_each = var.image_pull_secrets

@@ -34,6 +34,18 @@ resource "yandex_resourcemanager_folder_iam_member" "alb-sa-compute-viewer" {
   member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-vpc-viewer" {
+  folder_id = local.network_folder_id
+  role      = "vpc.viewer"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "alb-sa-k8s-viewer" {
+  folder_id = local.network_folder_id
+  role      = "k8s.viewer"
+  member    = "serviceAccount:${yandex_iam_service_account.alb-sa.id}"
+}
+
 resource "yandex_iam_service_account_key" "alb-sa-key" {
   service_account_id = yandex_iam_service_account.alb-sa.id
   output_to_lockbox {
