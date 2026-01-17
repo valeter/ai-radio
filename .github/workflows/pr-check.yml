@@ -73,6 +73,7 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          VALIDATE: "${{ steps.validate.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -88,14 +89,14 @@ jobs:
 
             // 2. Prepare format of the comment
             // Экранируем обратные кавычки в выводах Terraform
-            
+
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
 
             \`\`\`
-            ${{ steps.validate.outputs.stdout }}
+            ${process.env.VALIDATE}
             \`\`\`
 
             </details>
