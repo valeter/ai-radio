@@ -11,7 +11,7 @@ env:
   KUBE_VERSION: "v1.30.1"
 
   YC_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
-  TF_CLI_CONFIG_FILE: "terraform/config.tfrc"
+  TF_CLI_CONFIG_FILE: "config.tfrc"
   AWS_TF_ACCESS_KEY: ${{ secrets.YC_ACCESS_KEY }}
   AWS_TF_SECRET_KEY: ${{ secrets.YC_SECRET_KEY }}
 
@@ -35,6 +35,10 @@ jobs:
     name: "Deploy yc terraform resources from terraform/"
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: "terraform/"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,14 +54,14 @@ jobs:
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
+        run: terraform init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Terraform Plan
-        run: terraform -chdir=terraform/ plan -out=tfplan
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
-        run: terraform -chdir=terraform/ apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan
 
   upload-website:
     needs: terraform
@@ -293,7 +297,7 @@ jobs:
       - name: Install protoc
         run: |
           sudo apt-get update && sudo apt-get install -y protobuf-compiler
-          pip3 install "protobuf==5.29.1" "grpcio==1.68.0" "grpcio-tools==1.68.0"
+          pip3 install "protobuf==6.31.1" "grpcio==1.76.0" "grpcio-tools==1.76.0"
           protoc --version
 
       - name: Install protoc-gen-go
