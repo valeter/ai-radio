@@ -87,7 +87,7 @@ jobs:
             })
 
             const output = `#### Terraform Format and Style 
-            #### Terraform Initialization ⚙️\`${initOutput}\`
+            #### Terraform Initialization 
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
 
