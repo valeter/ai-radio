@@ -189,13 +189,14 @@ jobs:
         run: |
           echo "$K8S_CERT" > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-context default --cluster=k8s-cluster --user=admin-user --kubeconfig=default.kubeconfig
+          kubectl config set-credentials yc-managed-k8s --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=yc-managed-k8s --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
 
           helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/gwin/gwin-chart --version v1.0.7 --untar
 
           helm install --namespace ai-radio --set controller.folderId=$K8S_FOLDER_ID \
-            --set-file controller.ycServiceAccount.secret.value=~/.config/yandex/key.json gwin ./gwin-chart/
+            --set controller.ycServiceAccount.secret.value=${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }} gwin ./gwin-chart/
 
   deploy-k8s-terraform:
     needs: helm-install-gwin-controller
