@@ -86,13 +86,29 @@ jobs:
               return comment.body.includes('Terraform Format and Style')
             })
 
-            const output = `#### Terraform Format and Style 
-            #### Terraform Initialization 
+            // 2. Prepare format of the comment
+            // Экранируем обратные кавычки в выводах Terraform
+            const escapeForMarkdown = (text) => {
+              if (!text) return '';
+              // Экранируем обратные кавычки и обратные слеши
+              return text
+                .replace(/\\/g, '\\\\')
+                .replace(/`/g, '\\`')
+                .replace(/\$/g, '\\$');
+            };
+
+            const fmtOutput = '${{ steps.fmt.outcome }}';
+            const initOutput = '${{ steps.init.outcome }}';
+            const validateOutput = escapeForMarkdown('${{ steps.validate.outputs.stdout }}');
+            const planOutput = escapeForMarkdown('${{ steps.plan.outputs.stdout }}');
+
+            const output = `#### Terraform Format and Style 🖌\`${fmtOutput}\`
+            #### Terraform Initialization ⚙️\`${initOutput}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
 
             \`\`\`
-            
+            ${validateOutput}
             \`\`\`
 
             </details>
@@ -102,7 +118,7 @@ jobs:
             <details><summary>Show Plan</summary>
 
             \`\`\`
-            
+            ${planOutput}
             \`\`\`
 
             </details>
