@@ -25,7 +25,7 @@ env:
 
 jobs:
   terraform:
-    name: "YC terraform checks for terraform/"
+    name: "YC terraform checks terraform/"
     runs-on: ubuntu-latest
 
     defaults:
@@ -130,7 +130,7 @@ jobs:
             }
 
   terraform-k8s:
-    name: "K8s terraform checks for terraform-k8s/"
+    name: "K8s terraform checks terraform-k8s/"
     runs-on: ubuntu-latest
 
     defaults:
