@@ -211,19 +211,47 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+           version: ${{ env.KUBE_VERSION }}
+
       - name: Configure Yandex Cloud credentials
         run: |
           mkdir -p ~/.config/yandex
           echo '${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}' > ~/.config/yandex/key.json
 
+      - name: IAM Token
+        id: issue-iam-token
+        uses: yc-actions/yc-iam-token@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SERVICE_ACCOUNT_KEY_FILE }}
+
+      - name: Configure kubectl
+        env:
+          K8S_CERT: ${{ secrets.K8S_CERT }}
+          K8S_ENDPOINT: ${{ secrets.K8S_MASTER_ENDPOINT }}
+        run: |
+          echo "$K8S_CERT" > ca.pem
+          kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
+          kubectl config set-credentials yc-managed-k8s --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=default.kubeconfig
+          kubectl config set-context default --cluster=k8s-cluster --user=yc-managed-k8s --kubeconfig=default.kubeconfig
+          kubectl config use-context default --kubeconfig=default.kubeconfig
+
       - name: Terraform Init
+        env: 
+          TF_VAR_kubeconfig_path: default.kubeconfig
         run: terraform -chdir=terraform-k8s/ init -backend-config="access_key=$AWS_TF_ACCESS_KEY" -backend-config="secret_key=$AWS_TF_SECRET_KEY"
 
       - name: Terraform Plan
+        env: 
+          TF_VAR_kubeconfig_path: default.kubeconfig
         run: terraform -chdir=terraform-k8s/ plan -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'  # Only apply on main branch
+        env: 
+          TF_VAR_kubeconfig_path: default.kubeconfig
         run: terraform -chdir=terraform-k8s/ apply -auto-approve tfplan
 
 
