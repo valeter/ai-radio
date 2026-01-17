@@ -173,20 +173,28 @@ jobs:
           kubectl config use-context default --kubeconfig=default.kubeconfig
 
       - name: Terraform fmt
+        env: 
+          TF_VAR_kubeconfig_path="default.kubeconfig"
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform Init
+        env: 
+          TF_VAR_kubeconfig_path="default.kubeconfig"
         id: init
         run: terraform init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
       - name: Terraform Validate
+        env: 
+          TF_VAR_kubeconfig_path="default.kubeconfig"
         id: validate
         run: terraform validate -no-color
         continue-on-error: true
 
       - name: Terraform Plan
+        env: 
+          TF_VAR_kubeconfig_path="default.kubeconfig"
         id: plan
         run: terraform plan -no-color
         continue-on-error: true
