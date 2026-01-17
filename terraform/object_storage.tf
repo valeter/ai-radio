@@ -7,15 +7,6 @@ resource "yandex_storage_bucket" "ai-radio-website-bucket" {
   max_size   = 10737418240
 }
 
-// resource "yandex_storage_bucket_grant" "ai-radio-website-bucket-public-read" {
-//   bucket = "ai-radio-website"
-//   grant {
-//     id          = "AllUsers"
-//     permissions = ["READ"]
-//     type        = "Group"
-//   }
-// }
-
 resource "yandex_storage_bucket" "ai-radio-music-bucket" {
   folder_id  = local.storage_folder_id
   bucket     = "ai-radio-music"
