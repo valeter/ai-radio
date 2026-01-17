@@ -181,7 +181,7 @@ jobs:
 
       - name: Terraform Init
         env: 
-          TF_VAR_kubeconfig_path="default.kubeconfig"
+          TF_VAR_kubeconfig_path: default.kubeconfig
         id: init
         run: terraform init -backend-config="access_key=$ACCESS_KEY" -backend-config="secret_key=$SECRET_KEY"
 
