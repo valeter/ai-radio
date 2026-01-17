@@ -128,6 +128,9 @@ jobs:
                 body: output
               })
             }
+      - name: Fail job if previous step failed
+        if: always() && (steps.fmt.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure')
+        run: exit 1
 
   terraform-k8s:
     name: "K8s terraform checks terraform-k8s/"
@@ -166,6 +169,7 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
+        continue-on-error: true
 
       - name: Terraform Plan
         id: plan
@@ -233,6 +237,9 @@ jobs:
                 body: output
               })
             }
+      - name: Fail job if previous step failed
+        if: always() && (steps.fmt.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure')
+        run: exit 1
 
   docker-build:
     name: "Docker build"
