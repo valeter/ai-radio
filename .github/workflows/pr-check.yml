@@ -175,7 +175,7 @@ jobs:
         run: |
           echo "$K8S_CERT" > ca.pem
           kubectl config set-cluster k8s-cluster --certificate-authority=ca.pem --embed-certs --server=$K8S_ENDPOINT --kubeconfig=default.kubeconfig
-          kubectl config set-credentials yc-managed-k8s --external --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=default.kubeconfig
+          kubectl config set-credentials yc-managed-k8s --token=${{ steps.issue-iam-token.outputs.token }} --kubeconfig=default.kubeconfig
           kubectl config set-context default --cluster=k8s-cluster --user=yc-managed-k8s --kubeconfig=default.kubeconfig
           kubectl config use-context default --kubeconfig=default.kubeconfig
           echo config
