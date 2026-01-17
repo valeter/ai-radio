@@ -87,6 +87,7 @@ jobs:
             })
 
             // 2. Prepare format of the comment
+            // Экранируем обратные кавычки в выводах Terraform
             const escapeBackticks = (text) => {
               if (!text) return '';
               return text.replace(/`/g, '\\`');
@@ -96,13 +97,13 @@ jobs:
             const initOutput = '${{ steps.init.outcome }}';
             const validateOutput = escapeBackticks('${{ steps.validate.outputs.stdout }}');
             const planOutput = escapeBackticks('${{ steps.plan.outputs.stdout }}');
-            
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+
+            const output = `#### Terraform Format and Style 🖌\`${fmtOutput}\`
+            #### Terraform Initialization ⚙️\`${initOutput}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
 
-            \`\`\`\n
+            \`\`\`
             ${validateOutput}
             \`\`\`
 
@@ -112,7 +113,7 @@ jobs:
 
             <details><summary>Show Plan</summary>
 
-            \`\`\`\n
+            \`\`\`
             ${planOutput}
             \`\`\`
 
